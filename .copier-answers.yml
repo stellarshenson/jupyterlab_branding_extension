@@ -1,0 +1,16 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.5.1
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: konrad.jelen@gmail.com
+author_name: Stellars Henson
+has_ai_rules: false
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: jupyterlab_custom_main_logo_extension
+project_short_description: Jupyterlab extension to use custom logo for the jupyterlab
+    main logo
+python_name: jupyterlab_custom_main_logo_extension
+repository: ''
+test: true
+
