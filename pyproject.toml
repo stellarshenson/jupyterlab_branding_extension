@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
+    "jupyter_server>=2.0.0,<3"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
@@ -39,6 +40,7 @@ exclude = [".github", "binder"]
 [tool.hatch.build.targets.wheel.shared-data]
 "jupyterlab_custom_main_logo_extension/labextension" = "share/jupyter/labextensions/jupyterlab_custom_main_logo_extension"
 "install.json" = "share/jupyter/labextensions/jupyterlab_custom_main_logo_extension/install.json"
+"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 
 [tool.hatch.build.hooks.version]
 path = "jupyterlab_custom_main_logo_extension/_version.py"
