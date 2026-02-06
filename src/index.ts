@@ -2,24 +2,39 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { fetchLogoConfig } from './handler';
+import { fetchLogoConfig, fetchLogoContent } from './handler';
 
 const LOGO_SELECTOR = '#jp-MainLogo';
 
-function applyLogo(logoUri: string): void {
-  const logoElement = document.querySelector(LOGO_SELECTOR);
-  if (!logoElement || !logoUri) {
-    return;
-  }
-
+function applyLogo(
+  logoElement: HTMLElement,
+  contentType: string,
+  text: string,
+  url: string
+): void {
   logoElement.innerHTML = '';
 
-  const img = document.createElement('img');
-  img.src = logoUri;
-  img.alt = 'Logo';
-  img.style.maxHeight = '100%';
-  img.style.maxWidth = '100%';
-  logoElement.appendChild(img);
+  if (contentType.includes('svg')) {
+    // Inline SVG - matches default JupyterLab logo approach
+    const container = document.createElement('div');
+    container.innerHTML = text;
+    const svg = container.querySelector('svg');
+    if (svg) {
+      svg.setAttribute('width', '16px');
+      svg.setAttribute('height', 'auto');
+      svg.style.margin = '2px 2px 2px 8px';
+      logoElement.appendChild(svg);
+    }
+  } else {
+    // Raster image fallback
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Logo';
+    img.setAttribute('width', '16');
+    img.setAttribute('height', 'auto');
+    img.style.margin = '2px 2px 2px 8px';
+    logoElement.appendChild(img);
+  }
 }
 
 /**
@@ -32,9 +47,16 @@ const plugin: JupyterFrontEndPlugin<void> = {
   activate: async (app: JupyterFrontEnd) => {
     try {
       const config = await fetchLogoConfig();
-      if (config.logo_uri) {
-        app.restored.then(() => applyLogo(config.logo_uri));
+      if (!config.logo_url) {
+        return;
       }
+      const content = await fetchLogoContent(config.logo_url);
+      app.restored.then(() => {
+        const el = document.querySelector(LOGO_SELECTOR) as HTMLElement;
+        if (el) {
+          applyLogo(el, content.contentType, content.text, content.url);
+        }
+      });
     } catch (e) {
       console.warn('[CustomMainLogo] Failed to load config:', e);
     }
