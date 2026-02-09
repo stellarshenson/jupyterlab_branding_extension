@@ -14,25 +14,30 @@ function applyLogo(
 ): void {
   logoElement.innerHTML = '';
 
+  // Let logo fill the entire tile area
+  logoElement.style.display = 'flex';
+  logoElement.style.alignItems = 'center';
+  logoElement.style.justifyContent = 'center';
+  logoElement.style.padding = '4px';
+  logoElement.style.boxSizing = 'border-box';
+
   if (contentType.includes('svg')) {
-    // Inline SVG - matches default JupyterLab logo approach
     const container = document.createElement('div');
     container.innerHTML = text;
     const svg = container.querySelector('svg');
     if (svg) {
-      svg.setAttribute('width', '16px');
-      svg.setAttribute('height', 'auto');
-      svg.style.margin = '2px 2px 2px 8px';
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+      svg.style.objectFit = 'contain';
       logoElement.appendChild(svg);
     }
   } else {
-    // Raster image fallback
     const img = document.createElement('img');
     img.src = url;
     img.alt = 'Logo';
-    img.setAttribute('width', '16');
-    img.setAttribute('height', 'auto');
-    img.style.margin = '2px 2px 2px 8px';
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
     logoElement.appendChild(img);
   }
 }
