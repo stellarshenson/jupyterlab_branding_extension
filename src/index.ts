@@ -6,7 +6,7 @@ import { fetchLogoConfig, fetchLogoContent } from './handler';
 
 const LOGO_SELECTOR = '#jp-MainLogo';
 
-function applyLogo(
+export function applyLogo(
   logoElement: HTMLElement,
   contentType: string,
   text: string,
@@ -50,6 +50,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
   description: 'Replace JupyterLab main logo with custom image',
   autoStart: true,
   activate: async (app: JupyterFrontEnd) => {
+    console.log('JupyterLab extension jupyterlab_branding_extension is activated!');
     try {
       const config = await fetchLogoConfig();
       if (!config.logo_url) {

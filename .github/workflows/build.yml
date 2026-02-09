@@ -40,6 +40,8 @@ jobs:
         set -eux
         python -m pip install .[test]
 
+        jupyter server extension list
+        jupyter server extension list 2>&1 | grep -ie "jupyterlab_branding_extension.*OK"
         jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "jupyterlab_branding_extension.*OK"
         python -m jupyterlab.browser_check
@@ -81,7 +83,8 @@ jobs:
 
         pip install "jupyterlab>=4.0.0,<5" jupyterlab_branding_extension*.whl
 
-
+        jupyter server extension list
+        jupyter server extension list 2>&1 | grep -ie "jupyterlab_branding_extension.*OK"
         jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "jupyterlab_branding_extension.*OK"
         python -m jupyterlab.browser_check --no-browser-test
@@ -154,3 +157,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - uses: jupyterlab/maintainer-tools/.github/actions/check-links@v1
+        with:
+          ignore_links: "https://www.npmjs.com/package/.* https://pepy.tech/.* https://static.pepy.tech/.*"
