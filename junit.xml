@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="15" failures="0" errors="0" time="1.878">
+  <testsuite name="computeSvgPadding" errors="0" failures="0" skipped="0" timestamp="2026-02-09T22:47:10" time="1.306" tests="15">
+    <testcase classname="computeSvgPadding should return padding ratios for SVG with viewBox padding" name="computeSvgPadding should return padding ratios for SVG with viewBox padding" time="0.009">
+    </testcase>
+    <testcase classname="computeSvgPadding should return null for SVG with no meaningful padding" name="computeSvgPadding should return null for SVG with no meaningful padding" time="0.001">
+    </testcase>
+    <testcase classname="computeSvgPadding should return null for SVG without viewBox" name="computeSvgPadding should return null for SVG without viewBox" time="0.002">
+    </testcase>
+    <testcase classname="computeSvgPadding should return null for non-SVG input" name="computeSvgPadding should return null for non-SVG input" time="0.001">
+    </testcase>
+    <testcase classname="computeSvgPadding should clamp negative ratios to zero" name="computeSvgPadding should clamp negative ratios to zero" time="0.001">
+    </testcase>
+    <testcase classname="computeSvgPadding should clean up temporary DOM element" name="computeSvgPadding should clean up temporary DOM element" time="0.001">
+    </testcase>
+    <testcase classname="applyLogo should clear existing content" name="applyLogo should clear existing content" time="0.003">
+    </testcase>
+    <testcase classname="applyLogo should add jp-MainLogo-custom class" name="applyLogo should add jp-MainLogo-custom class" time="0.001">
+    </testcase>
+    <testcase classname="applyLogo SVG content should create img element with data URI for SVG content" name="applyLogo SVG content should create img element with data URI for SVG content" time="0.002">
+    </testcase>
+    <testcase classname="applyLogo SVG content should set alt text on SVG img" name="applyLogo SVG content should set alt text on SVG img" time="0.001">
+    </testcase>
+    <testcase classname="applyLogo SVG content should apply padding style when SVG has viewBox padding" name="applyLogo SVG content should apply padding style when SVG has viewBox padding" time="0.002">
+    </testcase>
+    <testcase classname="applyLogo SVG content should not apply padding when SVG has no viewBox padding" name="applyLogo SVG content should not apply padding when SVG has no viewBox padding" time="0.001">
+    </testcase>
+    <testcase classname="applyLogo raster image content should create img element for non-SVG content" name="applyLogo raster image content should create img element for non-SVG content" time="0.001">
+    </testcase>
+    <testcase classname="applyLogo raster image content should set alt text on img" name="applyLogo raster image content should set alt text on img" time="0.001">
+    </testcase>
+    <testcase classname="applyLogo raster image content should not create SVG for raster content" name="applyLogo raster image content should not create SVG for raster content" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>
