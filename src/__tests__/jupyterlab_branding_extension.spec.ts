@@ -29,7 +29,8 @@ describe('applyLogo', () => {
   });
 
   describe('SVG content', () => {
-    const svgContent = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>';
+    const svgContent =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>';
 
     it('should embed SVG inline when content type includes svg', () => {
       applyLogo(logoElement, 'image/svg+xml', svgContent, '');

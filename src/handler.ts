@@ -7,11 +7,7 @@ export interface ILogoConfig {
 
 export async function fetchLogoConfig(): Promise<ILogoConfig> {
   const settings = ServerConnection.makeSettings();
-  const url = URLExt.join(
-    settings.baseUrl,
-    'jupyterlab-branding',
-    'config'
-  );
+  const url = URLExt.join(settings.baseUrl, 'jupyterlab-branding', 'config');
   const response = await ServerConnection.makeRequest(url, {}, settings);
   if (!response.ok) {
     throw new Error(`Failed to fetch logo config: ${response.status}`);

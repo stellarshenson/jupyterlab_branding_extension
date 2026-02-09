@@ -50,7 +50,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
   description: 'Replace JupyterLab main logo with custom image',
   autoStart: true,
   activate: async (app: JupyterFrontEnd) => {
-    console.log('JupyterLab extension jupyterlab_branding_extension is activated!');
+    console.log(
+      'JupyterLab extension jupyterlab_branding_extension is activated!'
+    );
     try {
       const config = await fetchLogoConfig();
       if (!config.logo_url) {
