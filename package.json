@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab_branding_extension",
-    "version": "1.0.11",
+    "version": "1.0.22",
     "description": "Jupyterlab extension to use custom logo for the jupyterlab main logo",
     "keywords": [
         "jupyter",
