@@ -38,11 +38,13 @@ describe('applyLogo', () => {
       expect(svg).not.toBeNull();
     });
 
-    it('should set SVG to fill container', () => {
+    it('should set SVG styling', () => {
       applyLogo(logoElement, 'image/svg+xml', svgContent, '');
       const svg = logoElement.querySelector('svg') as SVGElement;
-      expect(svg.getAttribute('width')).toBe('100%');
-      expect(svg.getAttribute('height')).toBe('100%');
+      expect(svg.style.display).toBe('block');
+      expect(svg.style.width).toBe('auto');
+      expect(svg.style.height).toBe('auto');
+      expect(svg.style.margin).toBe('6px');
     });
 
     it('should not create img element for SVG', () => {

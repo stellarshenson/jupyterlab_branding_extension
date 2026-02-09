@@ -30,3 +30,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 9. **Task - Logo padding and README cleanup** (v1.0.6): Removed 4px padding from logo container and cleaned up README<br>
    **Result**: Changed logo container padding from `4px` to `0` in `src/index.ts` so the logo fills the entire tile area without inset. Updated test assertion in `src/__tests__/jupyterlab_branding_extension.spec.ts` to match new `0px` value. Removed all references to `JUPYTERLAB_MAIN_ICON_URI` environment variable from `README.md` since it is not part of the package - it was only used incidentally in local config examples
+
+10. **Task - SVG logo styling** (v1.0.7): Updated SVG element styling to match JupyterLab's native `.f1xpzunt svg` pattern<br>
+    **Result**: Replaced previous SVG sizing (`width: 100%`, `height: 100%`, `object-fit: contain`) with `display: block`, `width: auto`, `height: auto`, `margin: 6px` in `src/index.ts` to match the computed styles of the default JupyterLab logo container. Updated test in `src/__tests__/jupyterlab_branding_extension.spec.ts` to verify the new SVG style properties

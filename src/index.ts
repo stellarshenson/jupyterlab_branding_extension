@@ -26,9 +26,10 @@ export function applyLogo(
     container.innerHTML = text;
     const svg = container.querySelector('svg');
     if (svg) {
-      svg.setAttribute('width', '100%');
-      svg.setAttribute('height', '100%');
-      svg.style.objectFit = 'contain';
+      svg.style.display = 'block';
+      svg.style.width = 'auto';
+      svg.style.height = 'auto';
+      svg.style.margin = '6px';
       logoElement.appendChild(svg);
     }
   } else {
