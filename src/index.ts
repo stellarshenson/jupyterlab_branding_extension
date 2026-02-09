@@ -14,31 +14,17 @@ export function applyLogo(
 ): void {
   logoElement.innerHTML = '';
 
-  // Let logo fill the entire tile area
-  logoElement.style.display = 'flex';
-  logoElement.style.alignItems = 'center';
-  logoElement.style.justifyContent = 'center';
-  logoElement.style.padding = '0';
-  logoElement.style.boxSizing = 'border-box';
-
   if (contentType.includes('svg')) {
     const container = document.createElement('div');
     container.innerHTML = text;
     const svg = container.querySelector('svg');
     if (svg) {
-      svg.style.display = 'block';
-      svg.style.width = 'auto';
-      svg.style.height = 'auto';
-      svg.style.margin = '6px';
       logoElement.appendChild(svg);
     }
   } else {
     const img = document.createElement('img');
     img.src = url;
     img.alt = 'Logo';
-    img.style.width = '100%';
-    img.style.height = '100%';
-    img.style.objectFit = 'contain';
     logoElement.appendChild(img);
   }
 }

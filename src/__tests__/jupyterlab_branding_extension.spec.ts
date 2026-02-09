@@ -19,15 +19,6 @@ describe('applyLogo', () => {
     expect(logoElement.innerHTML).not.toContain('old logo');
   });
 
-  it('should set container to flexbox centered layout', () => {
-    applyLogo(logoElement, 'image/svg+xml', '<svg><circle/></svg>', '');
-    expect(logoElement.style.display).toBe('flex');
-    expect(logoElement.style.alignItems).toBe('center');
-    expect(logoElement.style.justifyContent).toBe('center');
-    expect(logoElement.style.padding).toBe('0px');
-    expect(logoElement.style.boxSizing).toBe('border-box');
-  });
-
   describe('SVG content', () => {
     const svgContent =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>';
@@ -36,15 +27,6 @@ describe('applyLogo', () => {
       applyLogo(logoElement, 'image/svg+xml', svgContent, '');
       const svg = logoElement.querySelector('svg');
       expect(svg).not.toBeNull();
-    });
-
-    it('should set SVG styling', () => {
-      applyLogo(logoElement, 'image/svg+xml', svgContent, '');
-      const svg = logoElement.querySelector('svg') as SVGElement;
-      expect(svg.style.display).toBe('block');
-      expect(svg.style.width).toBe('auto');
-      expect(svg.style.height).toBe('auto');
-      expect(svg.style.margin).toBe('6px');
     });
 
     it('should not create img element for SVG', () => {
@@ -60,14 +42,6 @@ describe('applyLogo', () => {
       const img = logoElement.querySelector('img') as HTMLImageElement;
       expect(img).not.toBeNull();
       expect(img.src).toBe('https://example.com/logo.png');
-    });
-
-    it('should set img to fill container with object-fit contain', () => {
-      applyLogo(logoElement, 'image/png', '', 'https://example.com/logo.png');
-      const img = logoElement.querySelector('img') as HTMLImageElement;
-      expect(img.style.width).toBe('100%');
-      expect(img.style.height).toBe('100%');
-      expect(img.style.objectFit).toBe('contain');
     });
 
     it('should set alt text on img', () => {

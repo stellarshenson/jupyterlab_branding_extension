@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab_branding_extension",
-    "version": "1.0.6",
+    "version": "1.0.9",
     "description": "Jupyterlab extension to use custom logo for the jupyterlab main logo",
     "keywords": [
         "jupyter",
@@ -202,6 +202,7 @@
             "csstree/validator": true,
             "property-no-vendor-prefix": null,
             "selector-class-pattern": "^([a-z][A-z\\d]*)(-[A-z\\d]+)*$",
+            "selector-id-pattern": null,
             "selector-no-vendor-prefix": null,
             "value-no-vendor-prefix": null
         }
