@@ -38,10 +38,10 @@ function applyLogo(
 }
 
 /**
- * Initialization data for the jupyterlab_custom_main_logo_extension extension.
+ * Initialization data for the jupyterlab_branding_extension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab_custom_main_logo_extension:plugin',
+  id: 'jupyterlab_branding_extension:plugin',
   description: 'Replace JupyterLab main logo with custom image',
   autoStart: true,
   activate: async (app: JupyterFrontEnd) => {
@@ -58,7 +58,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
       });
     } catch (e) {
-      console.warn('[CustomMainLogo] Failed to load config:', e);
+      console.warn('[Branding] Failed to load config:', e);
     }
   }
 };

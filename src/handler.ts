@@ -9,7 +9,7 @@ export async function fetchLogoConfig(): Promise<ILogoConfig> {
   const settings = ServerConnection.makeSettings();
   const url = URLExt.join(
     settings.baseUrl,
-    'jupyterlab-custom-main-logo',
+    'jupyterlab-branding',
     'config'
   );
   const response = await ServerConnection.makeRequest(url, {}, settings);
@@ -27,11 +27,16 @@ export interface ILogoContent {
 
 export async function fetchLogoContent(logoUrl: string): Promise<ILogoContent> {
   const settings = ServerConnection.makeSettings();
-  const response = await ServerConnection.makeRequest(logoUrl, {}, settings);
+  // logoUrl may be a relative path - ensure it's a full URL
+  let fullUrl = logoUrl;
+  if (logoUrl.startsWith('/')) {
+    fullUrl = URLExt.join(window.location.origin, logoUrl);
+  }
+  const response = await ServerConnection.makeRequest(fullUrl, {}, settings);
   if (!response.ok) {
     throw new Error(`Failed to fetch logo: ${response.status}`);
   }
   const contentType = response.headers.get('Content-Type') || '';
   const text = await response.text();
-  return { contentType, text, url: logoUrl };
+  return { contentType, text, url: fullUrl };
 }

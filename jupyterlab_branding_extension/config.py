@@ -1,11 +1,11 @@
-"""Configuration for custom main logo extension."""
+"""Configuration for branding extension."""
 
 from traitlets import Unicode
 from traitlets.config import Configurable
 
 
-class CustomMainLogo(Configurable):
-    """Configuration for custom main logo extension."""
+class Branding(Configurable):
+    """Configuration for branding extension."""
 
     logo_uri = Unicode(
         "",

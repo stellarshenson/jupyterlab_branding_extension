@@ -3,4 +3,4 @@ node_modules
 **/lib
 **/package.json
 !/package.json
-jupyterlab_custom_main_logo_extension
+jupyterlab_branding_extension

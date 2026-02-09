@@ -1,7 +1,7 @@
 {
-  "name": "jupyterlab_custom_main_logo_extension-ui-tests",
+  "name": "jupyterlab_branding_extension-ui-tests",
   "version": "1.0.0",
-  "description": "JupyterLab jupyterlab_custom_main_logo_extension Integration Tests",
+  "description": "JupyterLab jupyterlab_branding_extension Integration Tests",
   "private": true,
   "scripts": {
     "start": "jupyter lab --config jupyter_server_test_config.py",

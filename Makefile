@@ -1,4 +1,4 @@
-# Makefile for Jupyterlab extensions version 1.27
+# Makefile for Jupyterlab extensions version 1.28
 # author: Stellars Henson <konrad.jelen@gmail.com>
 # License: MIT Open Source License
 
@@ -65,9 +65,9 @@ publish: check_dependencies install
 
 ## install all required build dependencies
 install_dependencies:
-	conda install -y nodejs yarn --update-all
-	pip install twine
-	npm install rimraf
+	pip install nodeenv twine
+	nodeenv --node=lts --prebuilt -p
+	npm install -g yarn rimraf
 
 ## upgrade all npm and yarn dependencies
 upgrade: check_dependencies

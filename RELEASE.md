@@ -1,4 +1,4 @@
-# Making a new release of jupyterlab_custom_main_logo_extension
+# Making a new release of jupyterlab_branding_extension
 
 The extension can be published to `PyPI` and `npm` manually or using the [Jupyter Releaser](https://github.com/jupyter-server/jupyter_releaser).
 

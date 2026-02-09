@@ -16,6 +16,6 @@ test('should emit an activation console message', async ({ page }) => {
   await page.goto();
 
   expect(
-    logs.filter(s => s === 'JupyterLab extension jupyterlab_custom_main_logo_extension is activated!')
+    logs.filter(s => s === 'JupyterLab extension jupyterlab_branding_extension is activated!')
   ).toHaveLength(1);
 });

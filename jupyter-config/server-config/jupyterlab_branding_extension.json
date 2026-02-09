@@ -1,7 +1,7 @@
 {
   "ServerApp": {
     "jpserver_extensions": {
-      "jupyterlab_custom_main_logo_extension": true
+      "jupyterlab_branding_extension": true
     }
   }
 }

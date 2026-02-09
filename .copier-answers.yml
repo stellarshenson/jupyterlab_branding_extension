@@ -7,10 +7,10 @@ has_ai_rules: false
 has_binder: false
 has_settings: false
 kind: frontend
-labextension_name: jupyterlab_custom_main_logo_extension
+labextension_name: jupyterlab_branding_extension
 project_short_description: Jupyterlab extension to use custom logo for the jupyterlab
     main logo
-python_name: jupyterlab_custom_main_logo_extension
+python_name: jupyterlab_branding_extension
 repository: ''
 test: true
 
