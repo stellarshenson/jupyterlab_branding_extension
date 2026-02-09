@@ -24,3 +24,9 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 7. **Task - Fix CI prettier lint** (v1.0.3): Fixed CI build failure caused by prettier formatting issues in 6 files<br>
    **Result**: GitHub Actions `build.yml` failed at the `jlpm run lint:check` step with "Code style issues found in 6 files". Ran `jlpm run lint` to auto-fix prettier formatting in `package-lock.json`, `src/__tests__/jupyterlab_branding_extension.spec.ts`, `src/handler.ts`, `src/index.ts`, `ui-tests/tests/jupyterlab_branding_extension.spec.ts`, and `.claude/JOURNAL.md`. Verified `jlpm run lint:check` passes and all 9 Jest tests still pass
+
+8. **Task - Package URLs and publish** (v1.0.5): Updated `package.json` URLs and published to npm and PyPI<br>
+   **Result**: Fixed placeholder URLs in `package.json` - set `homepage` to GitHub repository, `bugs.url` to GitHub issues, and `repository.url` to full GitHub git URL. The `repository.url` fix also resolved the `check-release.yml` CI failure where `jupyter-releaser check-npm` was rejecting the old `".git"` value because it didn't match the cloned repository. Published v1.0.5 to both npm and PyPI
+
+9. **Task - Logo padding and README cleanup** (v1.0.6): Removed 4px padding from logo container and cleaned up README<br>
+   **Result**: Changed logo container padding from `4px` to `0` in `src/index.ts` so the logo fills the entire tile area without inset. Updated test assertion in `src/__tests__/jupyterlab_branding_extension.spec.ts` to match new `0px` value. Removed all references to `JUPYTERLAB_MAIN_ICON_URI` environment variable from `README.md` since it is not part of the package - it was only used incidentally in local config examples

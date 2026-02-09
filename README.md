@@ -13,7 +13,7 @@ JupyterLab branding extension that replaces the default main area logo with a cu
 ## Features
 
 - **Custom main area logo** - replace the default JupyterLab 3-dot logo with any SVG or raster image
-- **Configurable via traitlets** - set `logo_uri` in `jupyter_lab_config.py` or read from `JUPYTERLAB_MAIN_ICON_URI` environment variable
+- **Configurable via traitlets** - set `logo_uri` in `jupyter_lab_config.py`
 - **Local and remote logos** - supports `file://` paths, `https://` URLs, and local filesystem paths
 - **Inline SVG embedding** - SVG logos are embedded directly in the DOM, matching JupyterLab's native approach
 - **Server extension** - serves local logo files through an authenticated HTTP endpoint, bypassing browser `file://` restrictions
@@ -34,18 +34,13 @@ pip install jupyterlab_branding_extension
 Add to your `jupyter_lab_config.py`:
 
 ```python
-import os
-
-# From environment variable (set by JupyterHub or manually)
-c.Branding.logo_uri = os.environ.get("JUPYTERLAB_MAIN_ICON_URI", "")
-
-# Or set directly - local file path
+# Local file path
 c.Branding.logo_uri = "/path/to/your/logo.svg"
 
-# Or set directly - file:// URI
+# file:// URI
 c.Branding.logo_uri = "file:///path/to/your/logo.svg"
 
-# Or set directly - remote URL
+# Remote URL
 c.Branding.logo_uri = "https://example.com/logo.svg"
 ```
 

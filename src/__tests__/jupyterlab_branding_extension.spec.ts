@@ -24,7 +24,7 @@ describe('applyLogo', () => {
     expect(logoElement.style.display).toBe('flex');
     expect(logoElement.style.alignItems).toBe('center');
     expect(logoElement.style.justifyContent).toBe('center');
-    expect(logoElement.style.padding).toBe('4px');
+    expect(logoElement.style.padding).toBe('0px');
     expect(logoElement.style.boxSizing).toBe('border-box');
   });
 

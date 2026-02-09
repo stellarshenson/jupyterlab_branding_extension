@@ -18,7 +18,7 @@ export function applyLogo(
   logoElement.style.display = 'flex';
   logoElement.style.alignItems = 'center';
   logoElement.style.justifyContent = 'center';
-  logoElement.style.padding = '4px';
+  logoElement.style.padding = '0';
   logoElement.style.boxSizing = 'border-box';
 
   if (contentType.includes('svg')) {
