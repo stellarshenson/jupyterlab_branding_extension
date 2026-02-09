@@ -19,6 +19,11 @@ describe('applyLogo', () => {
     expect(logoElement.innerHTML).not.toContain('old logo');
   });
 
+  it('should add jp-MainLogo-custom class', () => {
+    applyLogo(logoElement, 'image/svg+xml', '<svg><circle/></svg>', '');
+    expect(logoElement.classList.contains('jp-MainLogo-custom')).toBe(true);
+  });
+
   describe('SVG content', () => {
     const svgContent =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>';

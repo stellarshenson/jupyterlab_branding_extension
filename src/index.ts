@@ -13,6 +13,7 @@ export function applyLogo(
   url: string
 ): void {
   logoElement.innerHTML = '';
+  logoElement.classList.add('jp-MainLogo-custom');
 
   if (contentType.includes('svg')) {
     const container = document.createElement('div');
