@@ -1,4 +1,5 @@
-# Makefile for Jupyterlab extensions version 1.28
+# Makefile for Jupyterlab extensions version 1.30
+# changelog: check twine in check_dependencies, ensure publish doesn't fail on missing twine
 # author: Stellars Henson <konrad.jelen@gmail.com>
 # License: MIT Open Source License
 
@@ -21,7 +22,8 @@ increment_version:
 ## build packages
 build: clean increment_version check_dependencies
 	npm install
-	yarn install
+	jlpm install
+	npx prettier --write package-lock.json package.json
 	python -m build
 
 ## install package
@@ -48,8 +50,7 @@ check_dependencies:
 	@MISSING=""; \
 	command -v node >/dev/null 2>&1 || MISSING="$$MISSING node"; \
 	command -v npm >/dev/null 2>&1 || MISSING="$$MISSING npm"; \
-	command -v yarn >/dev/null 2>&1 || MISSING="$$MISSING yarn"; \
-	command -v twine >/dev/null 2>&1 || MISSING="$$MISSING twine"; \
+	python -m twine --version >/dev/null 2>&1 || MISSING="$$MISSING twine"; \
 	if [ -n "$$MISSING" ]; then \
 		echo "Missing dependencies:$$MISSING"; \
 		echo "Installing missing dependencies..."; \
@@ -61,7 +62,10 @@ check_dependencies:
 ## publish package to public repository
 publish: check_dependencies install
 	npm publish --access public
-	twine upload dist/*
+	python -m twine upload dist/*
+	git add package.json package-lock.json
+	git commit -m "chore: post-publish $$(node -p "require('./package.json').version") package metadata"
+	git push
 
 ## install all required build dependencies
 install_dependencies:
@@ -114,7 +118,7 @@ help:
 			printf "%s ", words[i]; \
 		} \
 		printf "\n"; \
-	}' 
+	}'
 	@echo ""
 
 
