@@ -53,6 +53,10 @@ The extension has two components:
 - **Server extension** - exposes `/jupyterlab-branding/config` (returns the configured logo URL) and `/jupyterlab-branding/logo` (serves local logo files with correct MIME type)
 - **Frontend plugin** - fetches configuration on startup, retrieves logo content, and replaces the `#jp-MainLogo` element. SVG logos are embedded inline, raster images use `<img>` tags
 
+## Favicon
+
+This extension does not override the browser favicon. For JupyterHub deployments, favicon branding is typically configured at the JupyterHub level - refer to your JupyterHub configuration for how the hub overrides favicon for individual user servers.
+
 ## Uninstall
 
 ```bash
