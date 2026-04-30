@@ -134,11 +134,13 @@ export function applyLogo(
  *
  * Idempotent: removes any prior span created by this extension before
  * inserting a new one, so re-activation or HMR does not duplicate nodes.
+ * When `color` is provided, sets it as inline style overriding the CSS default.
  */
 export function applySystemName(
   spacerElement: HTMLElement,
   name: string,
-  capitalize: boolean
+  capitalize: boolean,
+  color?: string
 ): void {
   const existing = spacerElement.querySelector('.' + SYSTEM_NAME_CLASS);
   if (existing) {
@@ -155,6 +157,9 @@ export function applySystemName(
     span.classList.add(SYSTEM_NAME_UPPERCASE_CLASS);
   }
   span.textContent = name;
+  if (color) {
+    span.style.color = color;
+  }
   spacerElement.appendChild(span);
 }
 
@@ -189,7 +194,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
             applySystemName(
               spacer,
               config.system_name,
-              config.capitalize_system_name
+              config.header_capitalize_system_name,
+              config.header_system_name_color
             );
           }
         });

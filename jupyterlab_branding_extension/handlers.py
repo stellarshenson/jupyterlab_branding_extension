@@ -124,7 +124,8 @@ def setup_handlers(web_app, config):
     web_app.settings["branding_config"] = {
         "logo_url": frontend_url,
         "system_name": config.system_name,
-        "capitalize_system_name": config.capitalize_system_name,
+        "header_capitalize_system_name": config.header_capitalize_system_name,
+        "header_system_name_color": config.header_system_name_color,
     }
     web_app.settings["branding_file_path"] = file_path
 

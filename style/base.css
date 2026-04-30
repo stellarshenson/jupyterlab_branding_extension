@@ -26,7 +26,7 @@
 }
 
 .jp-Toolbar-spacer .jp-Branding-systemName {
-  color: var(--jp-brand-color1);
+  color: var(--jp-ui-font-color2);
   font-weight: 600;
   font-size: var(--jp-ui-font-size1);
   font-family: var(--jp-ui-font-family);

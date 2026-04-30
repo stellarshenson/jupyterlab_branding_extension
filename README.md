@@ -13,8 +13,8 @@ JupyterLab branding extension that replaces the default main area logo with a cu
 ## Features
 
 - **Custom main area logo** - replace the default JupyterLab 3-dot logo with any SVG or raster image
-- **System name in top toolbar** - display a configurable text label (e.g. environment name) in the right side of the top toolbar, styled with the JupyterLab brand color
-- **Configurable via traitlets** - set `logo_uri`, `system_name`, and `capitalize_system_name` in `jupyter_lab_config.py`
+- **System name in top toolbar** - display a configurable text label (e.g. environment name) in the right side of the top toolbar, with optional custom hex color
+- **Configurable via traitlets** - set `logo_uri`, `system_name`, `header_capitalize_system_name`, and `header_system_name_color` in `jupyter_lab_config.py`
 - **Local and remote logos** - supports `file://` paths, `https://` URLs, and local filesystem paths
 - **Inline SVG embedding** - SVG logos are embedded directly in the DOM, matching JupyterLab's native approach
 - **Server extension** - serves local logo files through an authenticated HTTP endpoint, bypassing browser `file://` restrictions
@@ -50,22 +50,25 @@ When no protocol is specified, the path is treated as a local filesystem path.
 ### System name
 
 ```python
-# Display "PRODUCTION" in the top-right of the toolbar
+# Display "PRODUCTION" in the top-right of the header
 c.Branding.system_name = "production"
-c.Branding.capitalize_system_name = True  # default
+c.Branding.header_capitalize_system_name = True  # default
 
 # Display "production" without uppercase transform
 c.Branding.system_name = "production"
-c.Branding.capitalize_system_name = False
+c.Branding.header_capitalize_system_name = False
+
+# Optional: override text color with a hex value
+c.Branding.header_system_name_color = "#ff8800"
 ```
 
-The system name is rendered inside the existing JupyterLab toolbar spacer (`jp-Toolbar-spacer`) using the JupyterLab brand color (`--jp-brand-color1`), so it matches active sidebar icons and adapts to light/dark themes automatically. Leave `system_name` empty to disable this feature.
+The system name is rendered inside the existing JupyterLab header toolbar spacer (`jp-Toolbar-spacer`). When `header_system_name_color` is empty, the text uses the JupyterLab sidebar font color (`--jp-ui-font-color2`) and adapts to light/dark themes automatically. When set to a hex value, that color is applied as an inline style. Leave `system_name` empty to disable this feature.
 
 ## How It Works
 
 The extension has two components:
 
-- **Server extension** - exposes `/jupyterlab-branding/config` (returns the configured logo URL, system name, and capitalize flag) and `/jupyterlab-branding/logo` (serves local logo files with correct MIME type)
+- **Server extension** - exposes `/jupyterlab-branding/config` (returns the configured logo URL, system name, header capitalize flag, and header color) and `/jupyterlab-branding/logo` (serves local logo files with correct MIME type)
 - **Frontend plugin** - fetches configuration on startup, retrieves logo content, replaces the `#jp-MainLogo` element, and injects the system name span into the top toolbar spacer. SVG logos are embedded inline, raster images use `<img>` tags
 
 ## Favicon

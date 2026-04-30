@@ -4,7 +4,8 @@ import { ServerConnection } from '@jupyterlab/services';
 export interface ILogoConfig {
   logo_url: string;
   system_name: string;
-  capitalize_system_name: boolean;
+  header_capitalize_system_name: boolean;
+  header_system_name_color: string;
 }
 
 export async function fetchLogoConfig(): Promise<ILogoConfig> {

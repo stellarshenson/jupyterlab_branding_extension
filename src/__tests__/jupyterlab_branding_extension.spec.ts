@@ -224,4 +224,28 @@ describe('applySystemName', () => {
     const span = spacer.querySelector('span.jp-Branding-systemName');
     expect(span).toBeNull();
   });
+
+  it('should apply inline color style when color is provided', () => {
+    applySystemName(spacer, 'production', true, '#ff8800');
+    const span = spacer.querySelector(
+      'span.jp-Branding-systemName'
+    ) as HTMLElement;
+    expect(span.style.color).toBe('rgb(255, 136, 0)');
+  });
+
+  it('should not set inline color when color is empty', () => {
+    applySystemName(spacer, 'production', true, '');
+    const span = spacer.querySelector(
+      'span.jp-Branding-systemName'
+    ) as HTMLElement;
+    expect(span.style.color).toBe('');
+  });
+
+  it('should not set inline color when color is omitted', () => {
+    applySystemName(spacer, 'production', true);
+    const span = spacer.querySelector(
+      'span.jp-Branding-systemName'
+    ) as HTMLElement;
+    expect(span.style.color).toBe('');
+  });
 });
