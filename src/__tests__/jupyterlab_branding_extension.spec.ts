@@ -1,4 +1,4 @@
-import { applyLogo, computeSvgPadding } from '../index';
+import { applyLogo, applySystemName, computeSvgPadding } from '../index';
 
 // Mock getBBox on SVGSVGElement prototype for jsdom (not natively supported).
 const mockGetBBox = jest.fn();
@@ -165,5 +165,63 @@ describe('applyLogo', () => {
       const svg = logoElement.querySelector('svg');
       expect(svg).toBeNull();
     });
+  });
+});
+
+describe('applySystemName', () => {
+  let spacer: HTMLElement;
+
+  beforeEach(() => {
+    spacer = document.createElement('div');
+    spacer.className = 'jp-Toolbar-spacer';
+    document.body.appendChild(spacer);
+  });
+
+  afterEach(() => {
+    document.body.removeChild(spacer);
+  });
+
+  it('should create span with system name text', () => {
+    applySystemName(spacer, 'production', true);
+    const span = spacer.querySelector('span.jp-Branding-systemName');
+    expect(span).not.toBeNull();
+    expect(span!.textContent).toBe('production');
+  });
+
+  it('should add uppercase class when capitalize is true', () => {
+    applySystemName(spacer, 'production', true);
+    const span = spacer.querySelector('span.jp-Branding-systemName');
+    expect(span!.classList.contains('jp-Branding-systemName-uppercase')).toBe(
+      true
+    );
+  });
+
+  it('should not add uppercase class when capitalize is false', () => {
+    applySystemName(spacer, 'production', false);
+    const span = spacer.querySelector('span.jp-Branding-systemName');
+    expect(span!.classList.contains('jp-Branding-systemName-uppercase')).toBe(
+      false
+    );
+  });
+
+  it('should be idempotent - second call replaces existing span', () => {
+    applySystemName(spacer, 'staging', true);
+    applySystemName(spacer, 'production', false);
+    const spans = spacer.querySelectorAll('span.jp-Branding-systemName');
+    expect(spans.length).toBe(1);
+    expect(spans[0].textContent).toBe('production');
+  });
+
+  it('should not create span for empty name', () => {
+    applySystemName(spacer, '', true);
+    const span = spacer.querySelector('span.jp-Branding-systemName');
+    expect(span).toBeNull();
+  });
+
+  it('should remove existing span when called with empty name', () => {
+    applySystemName(spacer, 'production', true);
+    applySystemName(spacer, '', true);
+    const span = spacer.querySelector('span.jp-Branding-systemName');
+    expect(span).toBeNull();
   });
 });

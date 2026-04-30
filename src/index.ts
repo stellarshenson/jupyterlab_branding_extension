@@ -5,6 +5,9 @@ import {
 import { fetchLogoConfig, fetchLogoContent } from './handler';
 
 const LOGO_SELECTOR = '#jp-MainLogo';
+const SPACER_SELECTOR = '.jp-Toolbar-spacer[data-jp-item-name="spacer"]';
+const SYSTEM_NAME_CLASS = 'jp-Branding-systemName';
+const SYSTEM_NAME_UPPERCASE_CLASS = 'jp-Branding-systemName-uppercase';
 
 /**
  * Minimum padding ratio threshold. Sides below this are treated as zero.
@@ -127,6 +130,35 @@ export function applyLogo(
 }
 
 /**
+ * Apply system name text to the toolbar spacer element.
+ *
+ * Idempotent: removes any prior span created by this extension before
+ * inserting a new one, so re-activation or HMR does not duplicate nodes.
+ */
+export function applySystemName(
+  spacerElement: HTMLElement,
+  name: string,
+  capitalize: boolean
+): void {
+  const existing = spacerElement.querySelector('.' + SYSTEM_NAME_CLASS);
+  if (existing) {
+    existing.remove();
+  }
+
+  if (!name) {
+    return;
+  }
+
+  const span = document.createElement('span');
+  span.className = SYSTEM_NAME_CLASS;
+  if (capitalize) {
+    span.classList.add(SYSTEM_NAME_UPPERCASE_CLASS);
+  }
+  span.textContent = name;
+  spacerElement.appendChild(span);
+}
+
+/**
  * Initialization data for the jupyterlab_branding_extension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
@@ -139,16 +171,29 @@ const plugin: JupyterFrontEndPlugin<void> = {
     );
     try {
       const config = await fetchLogoConfig();
-      if (!config.logo_url) {
-        return;
+
+      if (config.logo_url) {
+        const content = await fetchLogoContent(config.logo_url);
+        app.restored.then(() => {
+          const el = document.querySelector(LOGO_SELECTOR) as HTMLElement;
+          if (el) {
+            applyLogo(el, content.contentType, content.text, content.url);
+          }
+        });
       }
-      const content = await fetchLogoContent(config.logo_url);
-      app.restored.then(() => {
-        const el = document.querySelector(LOGO_SELECTOR) as HTMLElement;
-        if (el) {
-          applyLogo(el, content.contentType, content.text, content.url);
-        }
-      });
+
+      if (config.system_name) {
+        app.restored.then(() => {
+          const spacer = document.querySelector(SPACER_SELECTOR) as HTMLElement;
+          if (spacer) {
+            applySystemName(
+              spacer,
+              config.system_name,
+              config.capitalize_system_name
+            );
+          }
+        });
+      }
     } catch (e) {
       console.warn('[Branding] Failed to load config:', e);
     }

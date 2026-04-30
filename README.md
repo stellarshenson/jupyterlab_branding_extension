@@ -8,12 +8,13 @@
 [![Brought To You By KOLOMOLO](https://img.shields.io/badge/Brought%20To%20You%20By-KOLOMOLO-00ffff?style=flat)](https://kolomolo.com)
 [![Donate PayPal](https://img.shields.io/badge/Donate-PayPal-blue?style=flat)](https://www.paypal.com/donate/?hosted_button_id=B4KPBJDLLXTSA)
 
-JupyterLab branding extension that replaces the default main area logo with a custom image. Supports SVG (inline embedding) and raster formats via a configurable logo URI.
+JupyterLab branding extension that replaces the default main area logo with a custom image and displays a configurable system name in the top toolbar. Supports SVG (inline embedding) and raster logo formats via a configurable URI.
 
 ## Features
 
 - **Custom main area logo** - replace the default JupyterLab 3-dot logo with any SVG or raster image
-- **Configurable via traitlets** - set `logo_uri` in `jupyter_lab_config.py`
+- **System name in top toolbar** - display a configurable text label (e.g. environment name) in the right side of the top toolbar, styled with the JupyterLab brand color
+- **Configurable via traitlets** - set `logo_uri`, `system_name`, and `capitalize_system_name` in `jupyter_lab_config.py`
 - **Local and remote logos** - supports `file://` paths, `https://` URLs, and local filesystem paths
 - **Inline SVG embedding** - SVG logos are embedded directly in the DOM, matching JupyterLab's native approach
 - **Server extension** - serves local logo files through an authenticated HTTP endpoint, bypassing browser `file://` restrictions
@@ -46,12 +47,26 @@ c.Branding.logo_uri = "https://example.com/logo.svg"
 
 When no protocol is specified, the path is treated as a local filesystem path.
 
+### System name
+
+```python
+# Display "PRODUCTION" in the top-right of the toolbar
+c.Branding.system_name = "production"
+c.Branding.capitalize_system_name = True  # default
+
+# Display "production" without uppercase transform
+c.Branding.system_name = "production"
+c.Branding.capitalize_system_name = False
+```
+
+The system name is rendered inside the existing JupyterLab toolbar spacer (`jp-Toolbar-spacer`) using the JupyterLab brand color (`--jp-brand-color1`), so it matches active sidebar icons and adapts to light/dark themes automatically. Leave `system_name` empty to disable this feature.
+
 ## How It Works
 
 The extension has two components:
 
-- **Server extension** - exposes `/jupyterlab-branding/config` (returns the configured logo URL) and `/jupyterlab-branding/logo` (serves local logo files with correct MIME type)
-- **Frontend plugin** - fetches configuration on startup, retrieves logo content, and replaces the `#jp-MainLogo` element. SVG logos are embedded inline, raster images use `<img>` tags
+- **Server extension** - exposes `/jupyterlab-branding/config` (returns the configured logo URL, system name, and capitalize flag) and `/jupyterlab-branding/logo` (serves local logo files with correct MIME type)
+- **Frontend plugin** - fetches configuration on startup, retrieves logo content, replaces the `#jp-MainLogo` element, and injects the system name span into the top toolbar spacer. SVG logos are embedded inline, raster images use `<img>` tags
 
 ## Favicon
 
