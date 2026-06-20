@@ -3,8 +3,8 @@ import { ServerConnection } from '@jupyterlab/services';
 
 export interface ILogoConfig {
   logo_url: string;
+  splash_logo_url: string;
   system_name: string;
-  header_capitalize_system_name: boolean;
   header_system_name_color: string;
 }
 

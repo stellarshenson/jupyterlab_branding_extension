@@ -1,4 +1,9 @@
-import { applyLogo, applySystemName, computeSvgPadding } from '../index';
+import {
+  applyLogo,
+  applySplashLogo,
+  applySystemName,
+  computeSvgPadding
+} from '../index';
 
 // Mock getBBox on SVGSVGElement prototype for jsdom (not natively supported).
 const mockGetBBox = jest.fn();
@@ -182,51 +187,35 @@ describe('applySystemName', () => {
   });
 
   it('should create span with system name text', () => {
-    applySystemName(spacer, 'production', true);
+    applySystemName(spacer, 'production');
     const span = spacer.querySelector('span.jp-Branding-systemName');
     expect(span).not.toBeNull();
     expect(span!.textContent).toBe('production');
   });
 
-  it('should add uppercase class when capitalize is true', () => {
-    applySystemName(spacer, 'production', true);
-    const span = spacer.querySelector('span.jp-Branding-systemName');
-    expect(span!.classList.contains('jp-Branding-systemName-uppercase')).toBe(
-      true
-    );
-  });
-
-  it('should not add uppercase class when capitalize is false', () => {
-    applySystemName(spacer, 'production', false);
-    const span = spacer.querySelector('span.jp-Branding-systemName');
-    expect(span!.classList.contains('jp-Branding-systemName-uppercase')).toBe(
-      false
-    );
-  });
-
   it('should be idempotent - second call replaces existing span', () => {
-    applySystemName(spacer, 'staging', true);
-    applySystemName(spacer, 'production', false);
+    applySystemName(spacer, 'staging');
+    applySystemName(spacer, 'production');
     const spans = spacer.querySelectorAll('span.jp-Branding-systemName');
     expect(spans.length).toBe(1);
     expect(spans[0].textContent).toBe('production');
   });
 
   it('should not create span for empty name', () => {
-    applySystemName(spacer, '', true);
+    applySystemName(spacer, '');
     const span = spacer.querySelector('span.jp-Branding-systemName');
     expect(span).toBeNull();
   });
 
   it('should remove existing span when called with empty name', () => {
-    applySystemName(spacer, 'production', true);
-    applySystemName(spacer, '', true);
+    applySystemName(spacer, 'production');
+    applySystemName(spacer, '');
     const span = spacer.querySelector('span.jp-Branding-systemName');
     expect(span).toBeNull();
   });
 
   it('should apply inline color style when color is provided', () => {
-    applySystemName(spacer, 'production', true, '#ff8800');
+    applySystemName(spacer, 'production', '#ff8800');
     const span = spacer.querySelector(
       'span.jp-Branding-systemName'
     ) as HTMLElement;
@@ -234,7 +223,7 @@ describe('applySystemName', () => {
   });
 
   it('should not set inline color when color is empty', () => {
-    applySystemName(spacer, 'production', true, '');
+    applySystemName(spacer, 'production', '');
     const span = spacer.querySelector(
       'span.jp-Branding-systemName'
     ) as HTMLElement;
@@ -242,10 +231,73 @@ describe('applySystemName', () => {
   });
 
   it('should not set inline color when color is omitted', () => {
-    applySystemName(spacer, 'production', true);
+    applySystemName(spacer, 'production');
     const span = spacer.querySelector(
       'span.jp-Branding-systemName'
     ) as HTMLElement;
     expect(span.style.color).toBe('');
+  });
+});
+
+describe('applySplashLogo', () => {
+  afterEach(() => {
+    const existing = document.getElementById('jp-Branding-splash-style');
+    if (existing) {
+      existing.remove();
+    }
+  });
+
+  it('should inject a style element with the splash URL', () => {
+    applySplashLogo('/jupyterlab-branding/splash-logo');
+    const style = document.getElementById(
+      'jp-Branding-splash-style'
+    ) as HTMLStyleElement;
+    expect(style).not.toBeNull();
+    expect(style.tagName).toBe('STYLE');
+    expect(style.textContent).toContain(
+      "url('/jupyterlab-branding/splash-logo')"
+    );
+  });
+
+  it('should target #main-logo with background sizing rules', () => {
+    applySplashLogo('/jupyterlab-branding/splash-logo');
+    const style = document.getElementById(
+      'jp-Branding-splash-style'
+    ) as HTMLStyleElement;
+    expect(style.textContent).toContain('#jupyterlab-splash #main-logo');
+    expect(style.textContent).toContain('background-size: contain');
+    expect(style.textContent).toContain('background-repeat: no-repeat');
+    expect(style.textContent).toContain('background-position: center');
+  });
+
+  it('should hide the original inline SVG inside #main-logo', () => {
+    applySplashLogo('/jupyterlab-branding/splash-logo');
+    const style = document.getElementById(
+      'jp-Branding-splash-style'
+    ) as HTMLStyleElement;
+    expect(style.textContent).toContain('#jupyterlab-splash #main-logo > svg');
+    expect(style.textContent).toContain('display: none');
+  });
+
+  it('should be idempotent - second call replaces existing style', () => {
+    applySplashLogo('/old/url');
+    applySplashLogo('/new/url');
+    const styles = document.querySelectorAll('#jp-Branding-splash-style');
+    expect(styles.length).toBe(1);
+    expect(styles[0].textContent).toContain("url('/new/url')");
+    expect(styles[0].textContent).not.toContain("url('/old/url')");
+  });
+
+  it('should not inject style for empty URL', () => {
+    applySplashLogo('');
+    const style = document.getElementById('jp-Branding-splash-style');
+    expect(style).toBeNull();
+  });
+
+  it('should remove existing style when called with empty URL', () => {
+    applySplashLogo('/some/url');
+    applySplashLogo('');
+    const style = document.getElementById('jp-Branding-splash-style');
+    expect(style).toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 """Configuration for branding extension."""
 
-from traitlets import Bool, Unicode
+from traitlets import Unicode
 from traitlets.config import Configurable
 
 
@@ -13,19 +13,20 @@ class Branding(Configurable):
         help="URI to custom logo file (file://, https://, or relative path)"
     )
 
+    splash_logo_uri = Unicode(
+        "",
+        config=True,
+        help=(
+            "URI to custom splash screen logo (file://, https://, or "
+            "relative path). Replaces the centre logo of the JupyterLab "
+            "startup splash via CSS background-image override."
+        )
+    )
+
     system_name = Unicode(
         "",
         config=True,
         help="System name displayed in the top header toolbar spacer area"
-    )
-
-    header_capitalize_system_name = Bool(
-        True,
-        config=True,
-        help=(
-            "When True, system_name is rendered in the header using CSS "
-            "uppercase transform"
-        )
     )
 
     header_system_name_color = Unicode(

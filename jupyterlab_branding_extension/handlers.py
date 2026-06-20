@@ -1,5 +1,6 @@
 """Tornado handlers for branding extension."""
 
+import base64
 import json
 import logging
 import mimetypes
@@ -38,6 +39,25 @@ class LogoFileHandler(JupyterHandler):
         file_path = self.settings.get("branding_file_path", "")
         if not file_path or not os.path.isfile(file_path):
             raise tornado.web.HTTPError(404, "Logo file not found")
+
+        content_type, _ = mimetypes.guess_type(file_path)
+        if content_type is None:
+            content_type = "application/octet-stream"
+
+        self.set_header("Content-Type", content_type)
+        with open(file_path, "rb") as f:
+            self.finish(f.read())
+
+
+class SplashLogoFileHandler(JupyterHandler):
+    """Handler that serves the splash logo file."""
+
+    @tornado.web.authenticated
+    def get(self):
+        """Read and serve the splash logo file."""
+        file_path = self.settings.get("branding_splash_file_path", "")
+        if not file_path or not os.path.isfile(file_path):
+            raise tornado.web.HTTPError(404, "Splash logo file not found")
 
         content_type, _ = mimetypes.guess_type(file_path)
         if content_type is None:
@@ -91,6 +111,46 @@ def _fetch_remote_logo(url):
         return ""
 
 
+def _resolve_logo_source(logo_uri):
+    """Resolve a logo URI to a local file path, fetching remote URLs.
+
+    Returns the local file path, or empty string if logo_uri is empty
+    or could not be resolved.
+    """
+    if not logo_uri:
+        return ""
+
+    file_path = _resolve_file_path(logo_uri)
+    if file_path:
+        return file_path
+
+    parsed = urlparse(logo_uri)
+    if parsed.scheme in ("http", "https"):
+        return _fetch_remote_logo(logo_uri)
+
+    return ""
+
+
+def _to_data_uri(file_path):
+    """Encode a local file as a base64 data URI for inline CSS use.
+
+    Returns empty string if the file does not exist or cannot be read.
+    """
+    if not file_path or not os.path.isfile(file_path):
+        return ""
+    try:
+        content_type, _ = mimetypes.guess_type(file_path)
+        if content_type is None:
+            content_type = "application/octet-stream"
+        with open(file_path, "rb") as f:
+            data = f.read()
+        encoded = base64.b64encode(data).decode("ascii")
+        return "data:{};base64,{}".format(content_type, encoded)
+    except Exception as e:
+        log.warning("Failed to encode %s as data URI: %s", file_path, e)
+        return ""
+
+
 def setup_handlers(web_app, config):
     """Register handlers with the web application."""
     host_pattern = ".*$"
@@ -102,34 +162,41 @@ def setup_handlers(web_app, config):
     logo_route = url_path_join(
         base_url, "jupyterlab-branding", "logo"
     )
+    splash_logo_route = url_path_join(
+        base_url, "jupyterlab-branding", "splash-logo"
+    )
 
-    logo_uri = config.logo_uri
-    file_path = _resolve_file_path(logo_uri)
-    parsed = urlparse(logo_uri) if logo_uri else None
+    file_path = _resolve_logo_source(config.logo_uri)
+    splash_file_path = _resolve_logo_source(config.splash_logo_uri)
 
-    # For http(s) URLs, fetch server-side and serve through our endpoint.
-    # The URL may point to an internal host (e.g. jupyterhub:8080) that
-    # the browser cannot reach directly.
-    if not file_path and parsed and parsed.scheme in ("http", "https"):
-        file_path = _fetch_remote_logo(logo_uri)
-
-    # Determine the URL the frontend should use
-    if file_path:
-        frontend_url = url_path_join(
-            base_url, "jupyterlab-branding", "logo"
-        )
-    else:
-        frontend_url = ""
+    frontend_url = (
+        url_path_join(base_url, "jupyterlab-branding", "logo")
+        if file_path else ""
+    )
+    splash_frontend_url = (
+        url_path_join(base_url, "jupyterlab-branding", "splash-logo")
+        if splash_file_path else ""
+    )
 
     web_app.settings["branding_config"] = {
         "logo_url": frontend_url,
+        "splash_logo_url": splash_frontend_url,
         "system_name": config.system_name,
-        "header_capitalize_system_name": config.header_capitalize_system_name,
         "header_system_name_color": config.header_system_name_color,
     }
     web_app.settings["branding_file_path"] = file_path
+    web_app.settings["branding_splash_file_path"] = splash_file_path
+
+    # Inject splash URL and inline data URI into PageConfig so the
+    # frontend can read both at module load (before splash renders).
+    # The data URI avoids a network round-trip when the splash element
+    # appears, eliminating any flash of empty centre during the orbits.
+    page_config = web_app.settings.setdefault("page_config_data", {})
+    page_config["brandingSplashLogoUrl"] = splash_frontend_url
+    page_config["brandingSplashLogoDataUri"] = _to_data_uri(splash_file_path)
 
     web_app.add_handlers(host_pattern, [
         (config_route, LogoConfigHandler),
         (logo_route, LogoFileHandler),
+        (splash_logo_route, SplashLogoFileHandler),
     ])

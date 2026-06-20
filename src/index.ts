@@ -2,12 +2,13 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
+import { PageConfig } from '@jupyterlab/coreutils';
 import { fetchLogoConfig, fetchLogoContent } from './handler';
 
 const LOGO_SELECTOR = '#jp-MainLogo';
 const SPACER_SELECTOR = '.jp-Toolbar-spacer[data-jp-item-name="spacer"]';
 const SYSTEM_NAME_CLASS = 'jp-Branding-systemName';
-const SYSTEM_NAME_UPPERCASE_CLASS = 'jp-Branding-systemName-uppercase';
+const SPLASH_STYLE_ID = 'jp-Branding-splash-style';
 
 /**
  * Minimum padding ratio threshold. Sides below this are treated as zero.
@@ -139,7 +140,6 @@ export function applyLogo(
 export function applySystemName(
   spacerElement: HTMLElement,
   name: string,
-  capitalize: boolean,
   color?: string
 ): void {
   const existing = spacerElement.querySelector('.' + SYSTEM_NAME_CLASS);
@@ -153,14 +153,116 @@ export function applySystemName(
 
   const span = document.createElement('span');
   span.className = SYSTEM_NAME_CLASS;
-  if (capitalize) {
-    span.classList.add(SYSTEM_NAME_UPPERCASE_CLASS);
-  }
   span.textContent = name;
   if (color) {
     span.style.color = color;
   }
   spacerElement.appendChild(span);
+}
+
+/**
+ * Inject a CSS rule that replaces the JupyterLab splash centre logo.
+ *
+ * The splash logo is an inline SVG inside `#jupyterlab-splash #main-logo`
+ * (a child of `#galaxy`). The orbiting moons sit alongside it. To replace
+ * the logo without disturbing the orbit animation: hide the inner SVG and
+ * set a sized, centred background-image on `#main-logo` itself.
+ *
+ * The container is constrained to 140x140px so the logo sits in the same
+ * visual area as the default (leaving room for the orbits). Idempotent:
+ * replaces any prior style element previously injected by this extension.
+ */
+export function applySplashLogo(splashUrl: string): void {
+  const existing = document.getElementById(SPLASH_STYLE_ID);
+  if (existing) {
+    existing.remove();
+  }
+
+  if (!splashUrl) {
+    return;
+  }
+
+  const style = document.createElement('style');
+  style.id = SPLASH_STYLE_ID;
+  style.textContent = `
+    #jupyterlab-splash #main-logo {
+      background-image: url('${splashUrl}') !important;
+      background-size: contain !important;
+      background-repeat: no-repeat !important;
+      background-position: center center !important;
+      width: 140px !important;
+      height: 140px !important;
+      position: absolute !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+    }
+    #jupyterlab-splash #main-logo > svg {
+      display: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+/**
+ * Apply a theme-aware background to `html`/`body` and `#jupyterlab-splash`
+ * before JupyterLab itself paints, so the user never sees a white flash
+ * between the browser blank page and the splash appearing.
+ *
+ * Theme is inferred from the OS via `prefers-color-scheme` - a reasonable
+ * default since users typically align their JupyterLab theme with the OS.
+ * Light is the fallback when no preference exists.
+ */
+function applyEarlyThemeBackground(): void {
+  const style = document.createElement('style');
+  style.id = 'jp-Branding-early-bg';
+  style.textContent = `
+    html, body {
+      background-color: white;
+      margin: 0;
+    }
+    @media (prefers-color-scheme: dark) {
+      html, body {
+        background-color: #212121;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+/**
+ * Preload the splash logo so the image is in cache by the time the
+ * `#main-logo` element appears. Without this the browser only starts
+ * downloading after the element is added to the DOM, leaving a few
+ * hundred ms of empty centre during which the orbits already animate.
+ */
+function preloadSplashLogo(url: string): void {
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = url;
+  document.head.appendChild(link);
+}
+
+// Apply theme background and splash logo at module load (before plugin
+// activation) so the very first splash animation uses the custom logo
+// and the page never flashes white. The URL is injected into PageConfig
+// server-side; reading from PageConfig is synchronous. Prefer the inline
+// data URI (zero network round-trip, paints instantly with the splash
+// element) and fall back to the HTTP URL.
+try {
+  applyEarlyThemeBackground();
+  const splashDataUri = PageConfig.getOption('brandingSplashLogoDataUri');
+  const splashUrl = PageConfig.getOption('brandingSplashLogoUrl');
+  const effective = splashDataUri || splashUrl;
+  if (effective) {
+    if (splashUrl && !splashDataUri) {
+      preloadSplashLogo(splashUrl);
+    }
+    applySplashLogo(effective);
+  }
+} catch (e) {
+  console.warn('[Branding] Failed to apply early branding at module load:', e);
 }
 
 /**
@@ -194,7 +296,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
             applySystemName(
               spacer,
               config.system_name,
-              config.header_capitalize_system_name,
               config.header_system_name_color
             );
           }
