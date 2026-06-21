@@ -67,7 +67,17 @@ c.Branding.system_name = "production"
 c.Branding.header_system_name_color = "#ff8800"
 ```
 
-The system name is rendered inside the existing JupyterLab header toolbar spacer (`jp-Toolbar-spacer`). When `header_system_name_color` is empty, the text uses the JupyterLab sidebar font color (`--jp-ui-font-color2`) and adapts to light/dark themes automatically. When set to a hex value, that color is applied as an inline style. Leave `system_name` empty to disable this feature. To show the name in uppercase, type it in uppercase.
+The system name is rendered inside the existing JupyterLab header toolbar spacer (`jp-Toolbar-spacer`). When `header_system_name_color` is empty, the text uses the JupyterLab sidebar font color (`--jp-ui-font-color2`) and adapts to light/dark themes automatically. When set to a hex value, that color is applied as an inline style. Leave `system_name` empty to disable this feature.
+
+### System name appearance (Settings UI)
+
+The colour and capitalization of the system name are controlled per-user through **Settings → Settings Editor → Branding**, which overrides the deployment-side `header_system_name_color`:
+
+- **Capitalize system name** - off by default; when on, renders the name in uppercase via CSS `text-transform`
+- **System name colour mode** - `Auto` uses the JupyterLab theme colour (`--jp-ui-font-color2`, matches the sidebar font); `Custom` uses the hex colour below
+- **Custom hex colour** - the hex value (e.g. `#ff8800`) applied when colour mode is `Custom`; when left blank it falls back to the deployment-side `header_system_name_color`
+
+Settings changes apply live without a reload. The `system_name` text itself remains set by the deployment config (`c.Branding.system_name`).
 
 ## How It Works
 

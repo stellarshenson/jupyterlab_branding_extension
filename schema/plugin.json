@@ -1,0 +1,29 @@
+{
+  "title": "Branding",
+  "description": "Settings for the JupyterLab Branding Extension - controls how the system name in the top header is rendered.",
+  "type": "object",
+  "properties": {
+    "capitalize": {
+      "title": "Capitalize system name",
+      "description": "When enabled, render the system name in uppercase via CSS text-transform. Off by default - to show the name uppercase, simply type it uppercase in the deployment config.",
+      "type": "boolean",
+      "default": false
+    },
+    "colorMode": {
+      "title": "System name colour mode",
+      "description": "Auto uses the JupyterLab theme colour (matches sidebar font). Custom uses the hex colour below.",
+      "type": "string",
+      "enum": ["auto", "custom"],
+      "default": "auto"
+    },
+    "customColor": {
+      "title": "Custom hex colour",
+      "description": "Hex colour applied when 'System name colour mode' is set to Custom (e.g. '#ff8800'). Ignored when mode is Auto.",
+      "type": "string",
+      "pattern": "^(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|)$",
+      "default": ""
+    }
+  },
+  "additionalProperties": false,
+  "jupyter.lab.setting-icon-label": "Branding"
+}

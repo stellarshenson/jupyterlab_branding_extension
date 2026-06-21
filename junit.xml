@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="28" failures="0" errors="0" time="1.977">
-  <testsuite name="computeSvgPadding" errors="0" failures="0" skipped="0" timestamp="2026-06-20T20:12:37" time="1.412" tests="28">
-    <testcase classname="computeSvgPadding should return padding ratios for SVG with viewBox padding" name="computeSvgPadding should return padding ratios for SVG with viewBox padding" time="0.007">
+<testsuites name="jest tests" tests="31" failures="0" errors="0" time="3.035">
+  <testsuite name="computeSvgPadding" errors="0" failures="0" skipped="0" timestamp="2026-06-21T20:08:49" time="2.175" tests="31">
+    <testcase classname="computeSvgPadding should return padding ratios for SVG with viewBox padding" name="computeSvgPadding should return padding ratios for SVG with viewBox padding" time="0.006">
     </testcase>
     <testcase classname="computeSvgPadding should return null for SVG with no meaningful padding" name="computeSvgPadding should return null for SVG with no meaningful padding" time="0.001">
     </testcase>
@@ -15,45 +15,51 @@
     </testcase>
     <testcase classname="applyLogo should clear existing content" name="applyLogo should clear existing content" time="0.003">
     </testcase>
-    <testcase classname="applyLogo should add jp-MainLogo-custom class" name="applyLogo should add jp-MainLogo-custom class" time="0.002">
+    <testcase classname="applyLogo should add jp-MainLogo-custom class" name="applyLogo should add jp-MainLogo-custom class" time="0.001">
     </testcase>
     <testcase classname="applyLogo SVG content should create img element with data URI for SVG content" name="applyLogo SVG content should create img element with data URI for SVG content" time="0.002">
     </testcase>
     <testcase classname="applyLogo SVG content should set alt text on SVG img" name="applyLogo SVG content should set alt text on SVG img" time="0.001">
     </testcase>
-    <testcase classname="applyLogo SVG content should apply padding style when SVG has viewBox padding" name="applyLogo SVG content should apply padding style when SVG has viewBox padding" time="0.001">
+    <testcase classname="applyLogo SVG content should apply padding style when SVG has viewBox padding" name="applyLogo SVG content should apply padding style when SVG has viewBox padding" time="0.003">
     </testcase>
     <testcase classname="applyLogo SVG content should not apply padding when SVG has no viewBox padding" name="applyLogo SVG content should not apply padding when SVG has no viewBox padding" time="0.002">
     </testcase>
-    <testcase classname="applyLogo raster image content should create img element for non-SVG content" name="applyLogo raster image content should create img element for non-SVG content" time="0.001">
+    <testcase classname="applyLogo raster image content should create img element for non-SVG content" name="applyLogo raster image content should create img element for non-SVG content" time="0.002">
     </testcase>
     <testcase classname="applyLogo raster image content should set alt text on img" name="applyLogo raster image content should set alt text on img" time="0.001">
     </testcase>
     <testcase classname="applyLogo raster image content should not create SVG for raster content" name="applyLogo raster image content should not create SVG for raster content" time="0.001">
     </testcase>
-    <testcase classname="applySystemName should create span with system name text" name="applySystemName should create span with system name text" time="0.001">
+    <testcase classname="applySystemName should create span with system name text" name="applySystemName should create span with system name text" time="0.002">
     </testcase>
     <testcase classname="applySystemName should be idempotent - second call replaces existing span" name="applySystemName should be idempotent - second call replaces existing span" time="0.001">
     </testcase>
-    <testcase classname="applySystemName should not create span for empty name" name="applySystemName should not create span for empty name" time="0">
+    <testcase classname="applySystemName should not create span for empty name" name="applySystemName should not create span for empty name" time="0.001">
     </testcase>
-    <testcase classname="applySystemName should remove existing span when called with empty name" name="applySystemName should remove existing span when called with empty name" time="0.001">
+    <testcase classname="applySystemName should remove existing span when called with empty name" name="applySystemName should remove existing span when called with empty name" time="0">
     </testcase>
     <testcase classname="applySystemName should apply inline color style when color is provided" name="applySystemName should apply inline color style when color is provided" time="0.001">
     </testcase>
     <testcase classname="applySystemName should not set inline color when color is empty" name="applySystemName should not set inline color when color is empty" time="0">
     </testcase>
-    <testcase classname="applySystemName should not set inline color when color is omitted" name="applySystemName should not set inline color when color is omitted" time="0">
+    <testcase classname="applySystemName should not set inline color when color is omitted" name="applySystemName should not set inline color when color is omitted" time="0.001">
+    </testcase>
+    <testcase classname="applySystemName should add uppercase class when capitalize is true" name="applySystemName should add uppercase class when capitalize is true" time="0">
+    </testcase>
+    <testcase classname="applySystemName should not add uppercase class when capitalize is false" name="applySystemName should not add uppercase class when capitalize is false" time="0.001">
+    </testcase>
+    <testcase classname="applySystemName should not add uppercase class when capitalize is omitted" name="applySystemName should not add uppercase class when capitalize is omitted" time="0">
     </testcase>
     <testcase classname="applySplashLogo should inject a style element with the splash URL" name="applySplashLogo should inject a style element with the splash URL" time="0.001">
     </testcase>
     <testcase classname="applySplashLogo should target #main-logo with background sizing rules" name="applySplashLogo should target #main-logo with background sizing rules" time="0.001">
     </testcase>
-    <testcase classname="applySplashLogo should hide the original inline SVG inside #main-logo" name="applySplashLogo should hide the original inline SVG inside #main-logo" time="0">
+    <testcase classname="applySplashLogo should hide the original inline SVG inside #main-logo" name="applySplashLogo should hide the original inline SVG inside #main-logo" time="0.012">
     </testcase>
-    <testcase classname="applySplashLogo should be idempotent - second call replaces existing style" name="applySplashLogo should be idempotent - second call replaces existing style" time="0.002">
+    <testcase classname="applySplashLogo should be idempotent - second call replaces existing style" name="applySplashLogo should be idempotent - second call replaces existing style" time="0.001">
     </testcase>
-    <testcase classname="applySplashLogo should not inject style for empty URL" name="applySplashLogo should not inject style for empty URL" time="0">
+    <testcase classname="applySplashLogo should not inject style for empty URL" name="applySplashLogo should not inject style for empty URL" time="0.001">
     </testcase>
     <testcase classname="applySplashLogo should remove existing style when called with empty URL" name="applySplashLogo should remove existing style when called with empty URL" time="0">
     </testcase>

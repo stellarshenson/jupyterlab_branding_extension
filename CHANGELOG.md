@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.34] - 2026-06-21
+
+### Added
+
+- Settings UI under Settings → Branding (`schema/plugin.json`) controlling the system-name appearance: `capitalize` (off by default), `colorMode` (`auto` / `custom`), and `customColor` (hex)
+- `.jp-Branding-systemName-uppercase` CSS class re-introduced, now toggled by the `capitalize` UI setting rather than a deployment traitlet
+- `@jupyterlab/settingregistry` dependency and `schemaDir: "schema"` in `package.json` so the schema ships and appears in the Settings Editor
+- 3 new Jest tests for the `capitalize` parameter of `applySystemName` (31 total)
+
+### Changed
+
+- Plugin now requires `ISettingRegistry`, loads its settings on activation, and re-applies them live on change
+- System-name colour and capitalization are controlled per-user through the Settings UI, overriding the deployment-side `header_system_name_color`; `custom` mode falls back to `header_system_name_color` when the hex field is blank, `auto` uses the theme colour `--jp-ui-font-color2`
+
 ## [1.0.33] - 2026-06-20
 
 ### Added

@@ -3,11 +3,13 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { PageConfig } from '@jupyterlab/coreutils';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { fetchLogoConfig, fetchLogoContent } from './handler';
 
 const LOGO_SELECTOR = '#jp-MainLogo';
 const SPACER_SELECTOR = '.jp-Toolbar-spacer[data-jp-item-name="spacer"]';
 const SYSTEM_NAME_CLASS = 'jp-Branding-systemName';
+const SYSTEM_NAME_UPPERCASE_CLASS = 'jp-Branding-systemName-uppercase';
 const SPLASH_STYLE_ID = 'jp-Branding-splash-style';
 
 /**
@@ -136,11 +138,13 @@ export function applyLogo(
  * Idempotent: removes any prior span created by this extension before
  * inserting a new one, so re-activation or HMR does not duplicate nodes.
  * When `color` is provided, sets it as inline style overriding the CSS default.
+ * When `capitalize` is true, adds the uppercase CSS class.
  */
 export function applySystemName(
   spacerElement: HTMLElement,
   name: string,
-  color?: string
+  color?: string,
+  capitalize?: boolean
 ): void {
   const existing = spacerElement.querySelector('.' + SYSTEM_NAME_CLASS);
   if (existing) {
@@ -156,6 +160,9 @@ export function applySystemName(
   span.textContent = name;
   if (color) {
     span.style.color = color;
+  }
+  if (capitalize) {
+    span.classList.add(SYSTEM_NAME_UPPERCASE_CLASS);
   }
   spacerElement.appendChild(span);
 }
@@ -272,7 +279,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab_branding_extension:plugin',
   description: 'Replace JupyterLab main logo with custom image',
   autoStart: true,
-  activate: async (app: JupyterFrontEnd) => {
+  requires: [ISettingRegistry],
+  activate: async (app: JupyterFrontEnd, settingRegistry: ISettingRegistry) => {
     console.log(
       'JupyterLab extension jupyterlab_branding_extension is activated!'
     );
@@ -290,16 +298,36 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
 
       if (config.system_name) {
-        app.restored.then(() => {
+        let settings: ISettingRegistry.ISettings | null = null;
+        try {
+          settings = await settingRegistry.load(plugin.id);
+        } catch (e) {
+          console.warn('[Branding] Failed to load settings:', e);
+        }
+
+        // UI settings win: colorMode 'custom' uses customColor (seeded by the
+        // deployment-side header_system_name_color when blank); 'auto' falls
+        // through to the theme colour. capitalize is purely a UI toggle.
+        const render = () => {
           const spacer = document.querySelector(SPACER_SELECTOR) as HTMLElement;
-          if (spacer) {
-            applySystemName(
-              spacer,
-              config.system_name,
-              config.header_system_name_color
-            );
+          if (!spacer) {
+            return;
           }
-        });
+          const capitalize =
+            (settings?.get('capitalize').composite as boolean) ?? false;
+          const colorMode =
+            (settings?.get('colorMode').composite as string) ?? 'auto';
+          const customColor =
+            (settings?.get('customColor').composite as string) ?? '';
+          const color =
+            colorMode === 'custom'
+              ? customColor || config.header_system_name_color
+              : undefined;
+          applySystemName(spacer, config.system_name, color, capitalize);
+        };
+
+        app.restored.then(render);
+        settings?.changed.connect(render);
       }
     } catch (e) {
       console.warn('[Branding] Failed to load config:', e);

@@ -237,6 +237,36 @@ describe('applySystemName', () => {
     ) as HTMLElement;
     expect(span.style.color).toBe('');
   });
+
+  it('should add uppercase class when capitalize is true', () => {
+    applySystemName(spacer, 'production', undefined, true);
+    const span = spacer.querySelector(
+      'span.jp-Branding-systemName'
+    ) as HTMLElement;
+    expect(span.classList.contains('jp-Branding-systemName-uppercase')).toBe(
+      true
+    );
+  });
+
+  it('should not add uppercase class when capitalize is false', () => {
+    applySystemName(spacer, 'production', undefined, false);
+    const span = spacer.querySelector(
+      'span.jp-Branding-systemName'
+    ) as HTMLElement;
+    expect(span.classList.contains('jp-Branding-systemName-uppercase')).toBe(
+      false
+    );
+  });
+
+  it('should not add uppercase class when capitalize is omitted', () => {
+    applySystemName(spacer, 'production');
+    const span = spacer.querySelector(
+      'span.jp-Branding-systemName'
+    ) as HTMLElement;
+    expect(span.classList.contains('jp-Branding-systemName-uppercase')).toBe(
+      false
+    );
+  });
 });
 
 describe('applySplashLogo', () => {
