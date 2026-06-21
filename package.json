@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab_branding_extension",
-    "version": "1.0.33",
+    "version": "1.0.34",
     "description": "Jupyterlab extension to use custom logo for the jupyterlab main logo",
     "keywords": [
         "jupyter",
@@ -58,7 +58,8 @@
     "dependencies": {
         "@jupyterlab/application": "^4.0.0",
         "@jupyterlab/coreutils": "^6.0.0",
-        "@jupyterlab/services": "^7.0.0"
+        "@jupyterlab/services": "^7.0.0",
+        "@jupyterlab/settingregistry": "^4.0.0"
     },
     "devDependencies": {
         "@jupyterlab/builder": "^4.0.0",
@@ -101,6 +102,7 @@
     "jupyterlab": {
         "extension": true,
         "outputDir": "jupyterlab_branding_extension/labextension",
+        "schemaDir": "schema",
         "discovery": {
             "server": {
                 "managers": [
