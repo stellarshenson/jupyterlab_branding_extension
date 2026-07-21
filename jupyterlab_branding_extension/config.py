@@ -27,16 +27,19 @@ class Branding(Configurable):
         "",
         config=True,
         help=(
-            "Short name used as the browser tab title. When empty, or when "
-            "it contains only whitespace or non-painting characters, the "
-            "JupyterLab default title is left untouched."
+            "Short name used as the browser tab title. When empty, the "
+            "JupyterLab default title is left untouched. "
+            "Surrounding invisible characters are trimmed and bidi controls are removed; a value that paints nothing is treated as empty."
         )
     )
 
     system_name = Unicode(
         "",
         config=True,
-        help="System name displayed in the top header toolbar spacer area"
+        help=(
+            "System name displayed in the top header toolbar spacer area. "
+            "Surrounding invisible characters are trimmed and bidi controls are removed; a value that paints nothing is treated as empty."
+        )
     )
 
     stage = Unicode(
@@ -46,7 +49,8 @@ class Branding(Configurable):
             "Deployment stage badge shown to the right of the system name "
             "(e.g. 'DEV', 'TST', 'STG', 'PRD', or any text). DEV/TST/STG/PRD "
             "get their own colour; any other value renders neutral grey. "
-            "When empty, no badge is rendered."
+            "When empty, no badge is rendered. "
+            "Surrounding invisible characters are trimmed and bidi controls are removed; a value that paints nothing is treated as empty."
         )
     )
 

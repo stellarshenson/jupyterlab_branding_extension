@@ -173,3 +173,117 @@ def test_blank_stage_and_system_name_are_cleaned_server_side(blank):
     branding_config = web_app.settings["branding_config"]
     assert branding_config["system_name"] == ""
     assert branding_config["stage"] == ""
+
+
+@pytest.mark.parametrize(
+    "configured,expected",
+    [
+        # Bidi overrides are removed wherever they sit, not just at the ends:
+        # one painting character in front kept the override alive, so a value
+        # reading "A<RLO>BAL-EMCA" painted "AACME-LAB".
+        ("A‮BAL-EMCA", "ABAL-EMCA"),
+        ("PRD-‮BAL-EMCA", "PRD-BAL-EMCA"),
+        # Blank characters with a printing category are trimmed from the ends
+        # too, not merely counted towards blankness.
+        ("ㅤACME-LAB", "ACME-LAB"),
+        ("ACME-LAB⠀", "ACME-LAB"),
+    ],
+)
+def test_invisible_characters_are_removed_not_just_counted(configured, expected):
+    web_app = setup(short_name=configured)
+
+    assert render_page_config(web_app)["appName"] == expected
+
+
+@pytest.mark.parametrize(
+    "blank",
+    [
+        "⁥",  # reserved Default_Ignorable, category Cn
+        "￰￱￲",  # reserved Default_Ignorable range
+        "\U000e0080",  # reserved tag range
+        "\ufffc",  # object replacement char: So, zero advance width
+    ],
+)
+def test_non_painting_codepoints_outside_the_category_test_are_blank(blank):
+    """These paint nothing but no Unicode category says so - reserved
+    Default_Ignorable is Cn, U+FFFC is So - hence the range table."""
+    web_app = setup(short_name=blank)
+
+    assert web_app.settings.get("page_config_hook") is None
+    assert web_app.settings["page_config_data"]["brandingShortName"] == ""
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "ACME-LAB",
+        "CAFÉ-LAB",  # decomposed accent: mark must not be trimmed
+        "مختبر",  # Arabic
+        "מעבדה",  # Hebrew
+        "生産",  # CJK
+        "\U0001f468‍\U0001f469‍\U0001f467",  # emoji ZWJ sequence
+    ],
+)
+def test_legitimate_names_are_never_mangled(name):
+    """The cleaning must not damage real brand names in any script."""
+    web_app = setup(short_name=name)
+
+    assert render_page_config(web_app)["appName"] == name
+
+
+@pytest.mark.parametrize(
+    "configured,expected",
+    [
+        # A leading combining mark has no base character to belong to, so it
+        # is a floating accent in the tab title and must be trimmed.
+        ("́ACME", "ACME"),
+        ("️ACME", "ACME"),  # leading VS16
+        # A TRAILING mark does have a base character: trimming it would turn
+        # decomposed CAFE into CAFE, and an emoji into its text form.
+        ("CAFÉ", "CAFÉ"),
+        ("☃️", "☃️"),
+    ],
+)
+def test_combining_marks_trim_at_the_head_but_never_at_the_tail(configured, expected):
+    """The head/tail asymmetry is the whole point - cover both directions.
+
+    Regression: a single `_trimmable` predicate exempted Mn/Me at BOTH ends,
+    so a leading U+0301 shipped into appName; and no test exercised the
+    carve-out at all, because the CAFÉ cases put the mark interior where the
+    end-only trim loops never reach it.
+    """
+    web_app = setup(short_name=configured)
+
+    assert render_page_config(web_app)["appName"] == expected
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "🏴󠁧󠁢󠁳󠁣󠁴󠁿",  # subdivision flag: tag sequence must survive the tail trim
+        "LAB 🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+        # LRM is how Unicode pins a Latin/numeric run inside RTL text.
+        # Removing it renders the number reversed.
+        "مختبر ‎+48 22‎ PRD",
+        "מעבדה ‎ACME‎ PRD",
+    ],
+)
+def test_directional_marks_and_emoji_tags_are_preserved(name):
+    """Cleaning must not damage names that legitimately embed them.
+
+    Regression: emoji tag characters are Cf inside the E0000-E0FFF range,
+    so the tail trim ate them and a subdivision flag degraded to a plain
+    black flag; and LRM/RLM were lumped in with the bidi overrides, which
+    reordered legitimate RTL names.
+    """
+    web_app = setup(short_name=name)
+
+    assert render_page_config(web_app)["appName"] == name
+
+
+@pytest.mark.parametrize("spoof", ["‮BAL-EMCA", "A‮BAL-EMCA", "BAL-EMCA‮"])
+def test_bidi_overrides_are_still_removed_everywhere(spoof):
+    """Narrowing the set to overrides must not revive the spoof."""
+    web_app = setup(short_name=spoof)
+
+    assert "‮" not in render_page_config(web_app)["appName"]

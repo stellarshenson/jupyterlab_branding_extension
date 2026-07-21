@@ -152,7 +152,8 @@ def _to_data_uri(file_path):
         return ""
 
 
-# Blankness is decided by Unicode category, not by a character list.
+# Blankness is decided by Unicode category first, with an explicit range
+# table below for the codepoints category alone cannot express.
 #
 # str.strip() alone is not enough: Python does not treat U+FEFF as
 # whitespace but JavaScript's String.trim() does, so a BOM-prefixed value
@@ -164,23 +165,80 @@ def _to_data_uri(file_path):
 # 37 zero-ink codepoints, among them U+200E, which Windows and RTL locales
 # inject into text routinely, and U+202E, whose bidi override can make a
 # config file that reads "BAL-EMCA" paint "ACME-LAB" in the tab.
-_TRIMMABLE_CATEGORIES = frozenset({"Cc", "Cf", "Zs", "Zl", "Zp"})
+# Combining marks paint nothing alone, so they count towards blankness.
+# They are still trimmed from the head, where no base character precedes
+# them, but never from the tail - see _trimmable_head / _trimmable_tail.
+_NON_PAINTING_CATEGORIES = frozenset({"Cc", "Cf", "Zs", "Zl", "Zp", "Mn", "Me"})
 
-# Combining marks paint nothing on their own but belong to the character
-# before them, so they count towards blankness without being trimmed.
-_NON_PAINTING_CATEGORIES = _TRIMMABLE_CATEGORIES | frozenset({"Mn", "Me"})
+# Codepoints the category test above cannot reach. Two groups:
+#   - reserved Default_Ignorable_Code_Point, which Unicode sets aside so
+#     renderers draw nothing rather than a fallback box; these are category
+#     Cn (unassigned), so no category test sees them
+#   - blank glyphs Unicode classes as ordinary letters or symbols: the
+#     Hangul fillers (Lo), the blank Braille pattern and U+FFFC
+# U+2800 and U+FFFC are the two entries here that are not
+# Default_Ignorable.
+_NON_PAINTING_RANGES = (
+    (0x115F, 0x1160),
+    (0x2060, 0x206F),
+    (0x2800, 0x2800),
+    (0x3164, 0x3164),
+    (0xFFA0, 0xFFA0),
+    (0xFFF0, 0xFFF8),
+    # OBJECT REPLACEMENT CHARACTER: category So, not Default_Ignorable,
+    # but measured at zero advance width - it marks where an embedded
+    # object was, and browsers draw nothing for it.
+    (0xFFFC, 0xFFFC),
+    (0xE0000, 0xE0FFF),
+)
 
-# Blank characters that Unicode still classes as letters or symbols:
-# Hangul fillers, the blank Braille pattern, halfwidth Hangul filler.
-_NON_PAINTING_CODEPOINTS = frozenset({0x115F, 0x1160, 0x2800, 0x3164, 0xFFA0})
+# Bidi OVERRIDES, embeddings and isolates are removed wherever they
+# appear, not merely trimmed from the ends: a single painting character in
+# front keeps an override alive, and an unterminated U+202E reverses
+# everything after it. That is how a config reading "PRD-BAL-EMCA" can
+# paint "PRD-ACME-LAB".
+#
+# The directional MARKS - U+061C, U+200E, U+200F - are deliberately NOT in
+# this set. They cannot produce that spoof: they only reorder neutrals and
+# cannot reverse a strong-L run, verified by inserting them at every
+# position of "BAL-EMCA" without once changing the rendered order. Removing
+# them does cause damage, because LRM is what Unicode prescribes for
+# pinning a Latin or numeric run inside RTL text - stripping it from
+# "مختبر <LRM>+48 22<LRM> PRD" renders the phone number reversed. They are
+# still non-painting, so a value made only of them still cleans to empty.
+_BIDI_CONTROLS = frozenset("‪‫‬‭‮⁦⁧⁨⁩")
 
 
 def _paints(char):
     """Return True if the character puts ink on screen."""
-    return (
-        unicodedata.category(char) not in _NON_PAINTING_CATEGORIES
-        and ord(char) not in _NON_PAINTING_CODEPOINTS
-    )
+    code = ord(char)
+    if any(low <= code <= high for low, high in _NON_PAINTING_RANGES):
+        return False
+    return unicodedata.category(char) not in _NON_PAINTING_CATEGORIES
+
+
+def _trimmable_head(char):
+    """Return True if the character can be dropped from the start.
+
+    Everything non-painting qualifies, combining marks included: at the
+    head there is by definition no base character for a mark to belong to,
+    so a leading U+0301 is a floating accent, not part of a grapheme.
+    """
+    return not _paints(char)
+
+
+def _trimmable_tail(char):
+    """Return True if the character can be dropped from the end.
+
+    Same rule as the head with two exceptions, both of which attach to the
+    base character before them. A trailing combining mark: trimming it
+    turns a decomposed "CAFE" + U+0301 into "CAFE", and an emoji + U+FE0F
+    into its text-presentation form. An emoji tag sequence: trimming it
+    degrades a subdivision flag to a plain black flag.
+    """
+    if 0xE0020 <= ord(char) <= 0xE007F:
+        return False
+    return not _paints(char) and unicodedata.category(char) not in ("Mn", "Me")
 
 
 def _clean_display_text(value):
@@ -190,10 +248,11 @@ def _clean_display_text(value):
     system name and the stage badge all share one definition of blank -
     otherwise a value can be blank on one path and rendered on another.
     """
+    value = "".join(char for char in value if char not in _BIDI_CONTROLS)
     start, end = 0, len(value)
-    while start < end and unicodedata.category(value[start]) in _TRIMMABLE_CATEGORIES:
+    while start < end and _trimmable_head(value[start]):
         start += 1
-    while end > start and unicodedata.category(value[end - 1]) in _TRIMMABLE_CATEGORIES:
+    while end > start and _trimmable_tail(value[end - 1]):
         end -= 1
     cleaned = value[start:end]
     if not any(_paints(char) for char in cleaned):
@@ -286,7 +345,7 @@ def setup_handlers(web_app, config):
     # for plugins; workspace and state-DB identity come from the separate
     # 'workspace' option. The coupling that does exist runs the other way:
     # where appNamespace is empty, app.namespace falls back to appName, so
-    # branding would leak into that prefix. Under LabServerApp it is always
+    # branding would leak into that prefix. Under LabApp it is always
     # "lab", but writing it here would make that leak our doing.
     short_name = _clean_display_text(config.short_name)
     page_config["brandingShortName"] = short_name

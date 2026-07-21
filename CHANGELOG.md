@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.35] - 2026-07-21
+
+### Added
+
+- `short_name` traitlet setting the browser tab title, replacing the default `JupyterLab`
+- `stage` traitlet rendering a deployment badge to the right of the system name; `DEV`, `TST`, `STG` and `PRD` each get a colour, any other value renders neutral grey
+- `stageColors` setting under Settings → Branding, on by default, to disable the per-stage colours
+- `tests/test_handlers.py` covering the server-side configuration path, which previously had no test coverage
+- pytest wired into the build: `[tool.pytest.ini_options]` with `pythonpath`, `python -m pytest` in the `test` target, and a pytest check in `check_dependencies`
+
+### Changed
+
+- `appName` is overridden through the `page_config_hook` server setting rather than written into page config at startup, because `jupyterlab_server` re-assigns every `LabConfig` trait on each request; any hook already installed is chained so JupyterHub's token injection survives
+- `short_name`, `system_name` and `stage` share one server-side definition of blank, decided by Unicode category with an explicit range table for codepoints no category can express
+- Stage badge dark variants follow the active JupyterLab theme rather than the operating-system colour scheme
+- README corrected where it described mechanisms the code does not implement: SVG logos are `<img>` data URIs rather than inline embedding, the plugin rewrites `#jp-MainLogo` rather than replacing it, `header_system_name_color` has no effect at default settings, and the application namespace is a plugin provenance prefix rather than the state-database key
+
+### Fixed
+
+- A `short_name` consisting only of whitespace, a byte-order mark, or any zero-ink character blanked the browser tab a few seconds after boot instead of leaving the default title alone
+- A bidi override anywhere in a display string reversed what the tab and badge painted, so a value reading `BAL-EMCA` could render as `ACME-LAB`
+- The stage badge collapsed to an ellipsis instead of the system name shrinking, because `overflow: hidden` had made it the only shrinkable item in the toolbar
+- A stage configured without a system name rendered block-laid-out at the far left instead of right-aligned
+
 ## [1.0.34] - 2026-06-21
 
 ### Added
