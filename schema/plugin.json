@@ -1,6 +1,6 @@
 {
   "title": "Branding",
-  "description": "Settings for the JupyterLab Branding Extension - controls how the system name in the top header is rendered.",
+  "description": "Settings for the JupyterLab Branding Extension - controls how the system name and deployment stage badge in the top header are rendered.",
   "type": "object",
   "properties": {
     "capitalize": {
@@ -22,6 +22,12 @@
       "type": "string",
       "pattern": "^(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|)$",
       "default": ""
+    },
+    "stageColors": {
+      "title": "Colour the stage badge",
+      "description": "When enabled (the default), the stage badge uses its per-stage colour: DEV green, TST blue, STG orange, PRD red, anything else neutral grey. When disabled, every stage renders neutral grey.",
+      "type": "boolean",
+      "default": true
     }
   },
   "additionalProperties": false,

@@ -37,6 +37,7 @@ install: build
 ## run tests
 test: check_dependencies
 	jlpm test
+	python -m pytest
 
 ## clean builds and installables
 clean: uninstall  check_dependencies
@@ -55,6 +56,7 @@ check_dependencies:
 	command -v node >/dev/null 2>&1 || MISSING="$$MISSING node"; \
 	command -v npm >/dev/null 2>&1 || MISSING="$$MISSING npm"; \
 	python -m twine --version >/dev/null 2>&1 || MISSING="$$MISSING twine"; \
+	python -m pytest --version >/dev/null 2>&1 || MISSING="$$MISSING pytest"; \
 	if [ -n "$$MISSING" ]; then \
 		echo "Missing dependencies:$$MISSING"; \
 		echo "Installing missing dependencies..."; \
@@ -73,7 +75,7 @@ publish: check_dependencies install
 
 ## install all required build dependencies
 install_dependencies:
-	pip install nodeenv twine
+	pip install nodeenv twine pytest
 	nodeenv --node=lts --prebuilt -p
 	npm install -g yarn rimraf
 

@@ -6,6 +6,7 @@ export interface ILogoConfig {
   splash_logo_url: string;
   system_name: string;
   header_system_name_color: string;
+  stage: string;
 }
 
 export async function fetchLogoConfig(): Promise<ILogoConfig> {

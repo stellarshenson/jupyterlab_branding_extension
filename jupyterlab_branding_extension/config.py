@@ -23,10 +23,31 @@ class Branding(Configurable):
         )
     )
 
+    short_name = Unicode(
+        "",
+        config=True,
+        help=(
+            "Short name used as the browser tab title. When empty, or when "
+            "it contains only whitespace or non-painting characters, the "
+            "JupyterLab default title is left untouched."
+        )
+    )
+
     system_name = Unicode(
         "",
         config=True,
         help="System name displayed in the top header toolbar spacer area"
+    )
+
+    stage = Unicode(
+        "",
+        config=True,
+        help=(
+            "Deployment stage badge shown to the right of the system name "
+            "(e.g. 'DEV', 'TST', 'STG', 'PRD', or any text). DEV/TST/STG/PRD "
+            "get their own colour; any other value renders neutral grey. "
+            "When empty, no badge is rendered."
+        )
     )
 
     header_system_name_color = Unicode(

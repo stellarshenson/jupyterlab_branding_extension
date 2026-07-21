@@ -1,6 +1,8 @@
 import {
+  applyHeader,
   applyLogo,
   applySplashLogo,
+  applyStage,
   applySystemName,
   computeSvgPadding
 } from '../index';
@@ -266,6 +268,203 @@ describe('applySystemName', () => {
     expect(span.classList.contains('jp-Branding-systemName-uppercase')).toBe(
       false
     );
+  });
+});
+
+describe('applyStage', () => {
+  let spacer: HTMLElement;
+
+  beforeEach(() => {
+    spacer = document.createElement('div');
+    spacer.className = 'jp-Toolbar-spacer';
+    document.body.appendChild(spacer);
+  });
+
+  afterEach(() => {
+    document.body.removeChild(spacer);
+  });
+
+  it('should create span with the stage text', () => {
+    applyStage(spacer, 'PRD', true);
+    const span = spacer.querySelector('span.jp-Branding-stage');
+    expect(span).not.toBeNull();
+    expect(span!.textContent).toBe('PRD');
+  });
+
+  it('should add the per-stage colour class for known stages', () => {
+    const cases: [string, string][] = [
+      ['DEV', 'jp-Branding-stage-dev'],
+      ['TST', 'jp-Branding-stage-tst'],
+      ['STG', 'jp-Branding-stage-stg'],
+      ['PRD', 'jp-Branding-stage-prd']
+    ];
+    for (const [stage, cls] of cases) {
+      applyStage(spacer, stage, true);
+      const span = spacer.querySelector(
+        'span.jp-Branding-stage'
+      ) as HTMLElement;
+      expect(span.classList.contains(cls)).toBe(true);
+    }
+  });
+
+  it('should match known stages case-insensitively', () => {
+    applyStage(spacer, 'prd', true);
+    const span = spacer.querySelector('span.jp-Branding-stage') as HTMLElement;
+    expect(span.classList.contains('jp-Branding-stage-prd')).toBe(true);
+    expect(span.textContent).toBe('prd');
+  });
+
+  it('should not add a colour class for unknown stages', () => {
+    applyStage(spacer, 'SANDBOX', true);
+    const span = spacer.querySelector('span.jp-Branding-stage') as HTMLElement;
+    expect(span.className).toBe('jp-Branding-stage');
+  });
+
+  it('should not add a colour class when colours are disabled', () => {
+    applyStage(spacer, 'PRD', false);
+    const span = spacer.querySelector('span.jp-Branding-stage') as HTMLElement;
+    expect(span.classList.contains('jp-Branding-stage-prd')).toBe(false);
+  });
+
+  it('should default to coloured when useColors is omitted', () => {
+    // The schema default is true, so the function default must agree or a
+    // bare call renders the opposite of what the settings UI advertises.
+    applyStage(spacer, 'PRD');
+    const span = spacer.querySelector('span.jp-Branding-stage') as HTMLElement;
+    expect(span.classList.contains('jp-Branding-stage-prd')).toBe(true);
+  });
+
+  it('should not create span for empty or whitespace stage', () => {
+    applyStage(spacer, '', true);
+    expect(spacer.querySelector('span.jp-Branding-stage')).toBeNull();
+    applyStage(spacer, '   ', true);
+    expect(spacer.querySelector('span.jp-Branding-stage')).toBeNull();
+  });
+
+  it('should be idempotent - second call replaces existing badge', () => {
+    applyStage(spacer, 'DEV', true);
+    applyStage(spacer, 'PRD', true);
+    const spans = spacer.querySelectorAll('span.jp-Branding-stage');
+    expect(spans.length).toBe(1);
+    expect(spans[0].textContent).toBe('PRD');
+  });
+
+  it('should remove existing badge when called with empty stage', () => {
+    applyStage(spacer, 'PRD', true);
+    applyStage(spacer, '', true);
+    expect(spacer.querySelector('span.jp-Branding-stage')).toBeNull();
+  });
+
+  it('should render alone when the system name is empty', () => {
+    // Deployment sets stage but no system_name: applySystemName returns
+    // early, so the badge must still be the sole child and survive re-render.
+    for (let i = 0; i < 2; i++) {
+      applySystemName(spacer, '');
+      applyStage(spacer, 'PRD', true);
+    }
+    expect(spacer.children.length).toBe(1);
+    expect(spacer.children[0].className.split(' ')[0]).toBe(
+      'jp-Branding-stage'
+    );
+  });
+
+  it('should end up right of a system name that appears after it', () => {
+    // Badge rendered first, system name arrives on a later render - the
+    // append-order contract must still put the badge on the right.
+    applyStage(spacer, 'PRD', true);
+    applySystemName(spacer, 'my lab');
+    applyStage(spacer, 'PRD', true);
+    const children = Array.from(spacer.children).map(
+      c => c.className.split(' ')[0]
+    );
+    expect(children).toEqual(['jp-Branding-systemName', 'jp-Branding-stage']);
+  });
+
+  it('should sit to the right of the system name across re-renders', () => {
+    // Both helpers append, so the documented call order must survive a
+    // re-render triggered by a settings change.
+    for (let i = 0; i < 2; i++) {
+      applySystemName(spacer, 'my lab');
+      applyStage(spacer, 'PRD', true);
+    }
+    const children = Array.from(spacer.children).map(
+      c => c.className.split(' ')[0]
+    );
+    expect(children).toEqual(['jp-Branding-systemName', 'jp-Branding-stage']);
+  });
+});
+
+describe('applyHeader', () => {
+  let spacer: HTMLElement;
+
+  beforeEach(() => {
+    spacer = document.createElement('div');
+    spacer.className = 'jp-Toolbar-spacer';
+    document.body.appendChild(spacer);
+  });
+
+  afterEach(() => {
+    document.body.removeChild(spacer);
+  });
+
+  const order = () =>
+    Array.from(spacer.children).map(c => c.className.split(' ')[0]);
+
+  it('should place the stage badge right of the system name', () => {
+    applyHeader(spacer, 'my lab', 'PRD');
+    expect(order()).toEqual(['jp-Branding-systemName', 'jp-Branding-stage']);
+  });
+
+  it('should keep that order across repeated renders', () => {
+    // A settings change re-runs this; both helpers append, so a swapped call
+    // order inside applyHeader would surface here.
+    applyHeader(spacer, 'my lab', 'PRD');
+    applyHeader(spacer, 'my lab', 'PRD', { stageColors: false });
+    applyHeader(spacer, 'my lab', 'PRD', { capitalize: true });
+    expect(order()).toEqual(['jp-Branding-systemName', 'jp-Branding-stage']);
+    expect(spacer.children.length).toBe(2);
+  });
+
+  it('should render the badge alone when only a stage is configured', () => {
+    applyHeader(spacer, '', 'PRD');
+    expect(order()).toEqual(['jp-Branding-stage']);
+  });
+
+  it('should render the name alone when no stage is configured', () => {
+    applyHeader(spacer, 'my lab', '');
+    expect(order()).toEqual(['jp-Branding-systemName']);
+  });
+
+  it('should colour the badge by default and honour the toggle', () => {
+    applyHeader(spacer, 'my lab', 'PRD');
+    expect(
+      spacer
+        .querySelector('.jp-Branding-stage')!
+        .classList.contains('jp-Branding-stage-prd')
+    ).toBe(true);
+    applyHeader(spacer, 'my lab', 'PRD', { stageColors: false });
+    expect(
+      spacer
+        .querySelector('.jp-Branding-stage')!
+        .classList.contains('jp-Branding-stage-prd')
+    ).toBe(false);
+  });
+
+  it('should pass colour and capitalize through to the system name', () => {
+    applyHeader(spacer, 'my lab', 'PRD', {
+      color: '#ff8800',
+      capitalize: true
+    });
+    const name = spacer.querySelector('.jp-Branding-systemName') as HTMLElement;
+    expect(name.style.color).toBe('rgb(255, 136, 0)');
+    expect(name.classList.contains('jp-Branding-systemName-uppercase')).toBe(
+      true
+    );
+  });
+
+  it('should render nothing when neither is configured', () => {
+    applyHeader(spacer, '   ', '   ');
+    expect(spacer.children.length).toBe(0);
   });
 });
 

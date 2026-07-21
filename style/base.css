@@ -19,7 +19,11 @@
   object-fit: contain;
 }
 
-.jp-Toolbar-spacer:has(.jp-Branding-systemName) {
+/* A stage badge can be configured without a system name, so both selectors
+   must flip the spacer to right-aligned flex - keying on the system name
+   alone left a stage-only deployment block-laid-out and hard left. */
+.jp-Toolbar-spacer:has(.jp-Branding-systemName),
+.jp-Toolbar-spacer:has(.jp-Branding-stage) {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -38,4 +42,78 @@
 
 .jp-Branding-systemName-uppercase {
   text-transform: uppercase;
+}
+
+/* Deployment stage badge: outlined rectangle, transparent fill. Text and
+   border share the stage colour via currentcolor, so a single colour
+   declaration drives both. Neutral grey is the default; the per-stage
+   classes below override it when colouring is enabled. */
+.jp-Toolbar-spacer .jp-Branding-stage {
+  /* inline-block, not inline-flex: text-overflow is inert on a flex
+     container, so a long custom stage would hard-clip instead of ellipsising. */
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--jp-ui-font-family);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 8px;
+  border: 1px solid currentcolor;
+  border-radius: 4px;
+  line-height: 1.6;
+  white-space: nowrap;
+  margin-right: 12px;
+  color: #607782;
+
+  /* Cap free-form values at every width, not just on mobile - the toolbar
+     has no more room on desktop than it does on a phone. */
+  max-width: 12em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* overflow:hidden resolves min-width:auto to 0, making this the only
+     shrinkable item in the toolbar - without this the badge collapses to an
+     ellipsis while the nowrap system name beside it survives intact. */
+  flex-shrink: 0;
+}
+
+.jp-Toolbar-spacer .jp-Branding-stage-dev {
+  color: #1a7f37;
+}
+
+.jp-Toolbar-spacer .jp-Branding-stage-tst {
+  color: #06709c;
+}
+
+.jp-Toolbar-spacer .jp-Branding-stage-stg {
+  color: #9a6700;
+}
+
+.jp-Toolbar-spacer .jp-Branding-stage-prd {
+  color: #d94851;
+}
+
+/* Dark variants key off the JupyterLab theme, NOT prefers-color-scheme: the
+   theme is chosen in the theme manager and is independent of the OS setting,
+   so a dark theme on a light-mode OS would otherwise get light-mode hexes on
+   a dark toolbar. The badge renders after app.restored, by which time
+   JupyterLab has stamped this attribute on the body. */
+body[data-jp-theme-light='false'] .jp-Toolbar-spacer .jp-Branding-stage {
+  color: #9aa4ae;
+}
+
+body[data-jp-theme-light='false'] .jp-Toolbar-spacer .jp-Branding-stage-dev {
+  color: #3fb950;
+}
+
+body[data-jp-theme-light='false'] .jp-Toolbar-spacer .jp-Branding-stage-tst {
+  color: #21a8e4;
+}
+
+body[data-jp-theme-light='false'] .jp-Toolbar-spacer .jp-Branding-stage-stg {
+  color: #da8230;
+}
+
+body[data-jp-theme-light='false'] .jp-Toolbar-spacer .jp-Branding-stage-prd {
+  color: #ef4444;
 }

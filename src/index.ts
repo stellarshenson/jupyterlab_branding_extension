@@ -10,7 +10,13 @@ const LOGO_SELECTOR = '#jp-MainLogo';
 const SPACER_SELECTOR = '.jp-Toolbar-spacer[data-jp-item-name="spacer"]';
 const SYSTEM_NAME_CLASS = 'jp-Branding-systemName';
 const SYSTEM_NAME_UPPERCASE_CLASS = 'jp-Branding-systemName-uppercase';
+const STAGE_CLASS = 'jp-Branding-stage';
 const SPLASH_STYLE_ID = 'jp-Branding-splash-style';
+
+/**
+ * Stages that carry a dedicated colour. Anything else renders neutral grey.
+ */
+const KNOWN_STAGES = ['DEV', 'TST', 'STG', 'PRD'];
 
 /**
  * Minimum padding ratio threshold. Sides below this are treated as zero.
@@ -151,13 +157,16 @@ export function applySystemName(
     existing.remove();
   }
 
-  if (!name) {
+  // Trimmed to match applyStage - a whitespace-only name would otherwise
+  // render an empty span that still satisfies the :has() spacer selector.
+  const value = name ? name.trim() : '';
+  if (!value) {
     return;
   }
 
   const span = document.createElement('span');
   span.className = SYSTEM_NAME_CLASS;
-  span.textContent = name;
+  span.textContent = value;
   if (color) {
     span.style.color = color;
   }
@@ -165,6 +174,71 @@ export function applySystemName(
     span.classList.add(SYSTEM_NAME_UPPERCASE_CLASS);
   }
   spacerElement.appendChild(span);
+}
+
+/**
+ * Apply the deployment stage badge to the toolbar spacer element.
+ *
+ * Rendered as an outlined rectangle whose text and border share the stage
+ * colour. DEV/TST/STG/PRD each get a dedicated colour class; any other value
+ * falls back to neutral grey. An empty stage renders nothing.
+ *
+ * Idempotent: removes any prior badge before inserting a new one. Callers
+ * must invoke this after `applySystemName` so the badge sits to its right.
+ * When `useColors` is false, no colour class is added and the badge stays
+ * neutral.
+ */
+export function applyStage(
+  spacerElement: HTMLElement,
+  stage: string,
+  useColors = true
+): void {
+  const existing = spacerElement.querySelector('.' + STAGE_CLASS);
+  if (existing) {
+    existing.remove();
+  }
+
+  const value = stage ? stage.trim() : '';
+  if (!value) {
+    return;
+  }
+
+  const span = document.createElement('span');
+  span.className = STAGE_CLASS;
+  span.textContent = value;
+
+  if (useColors) {
+    const key = value.toUpperCase();
+    if (KNOWN_STAGES.includes(key)) {
+      span.classList.add(STAGE_CLASS + '-' + key.toLowerCase());
+    }
+  }
+
+  spacerElement.appendChild(span);
+}
+
+export interface IHeaderOptions {
+  color?: string;
+  capitalize?: boolean;
+  stageColors?: boolean;
+}
+
+/**
+ * Render the full header cluster into the toolbar spacer.
+ *
+ * Owns the ordering contract between the two helpers: both append, so the
+ * system name must be re-applied before the stage badge for the badge to
+ * stay on its right across re-renders. Exported so that contract is
+ * directly testable without a live JupyterFrontEnd.
+ */
+export function applyHeader(
+  spacerElement: HTMLElement,
+  systemName: string,
+  stage: string,
+  options: IHeaderOptions = {}
+): void {
+  applySystemName(spacerElement, systemName, options.color, options.capitalize);
+  applyStage(spacerElement, stage, options.stageColors);
 }
 
 /**
@@ -212,9 +286,9 @@ export function applySplashLogo(splashUrl: string): void {
 }
 
 /**
- * Apply a theme-aware background to `html`/`body` and `#jupyterlab-splash`
- * before JupyterLab itself paints, so the user never sees a white flash
- * between the browser blank page and the splash appearing.
+ * Apply a theme-aware background to `html`/`body` before JupyterLab itself
+ * paints, so the user never sees a white flash between the browser blank
+ * page and the splash appearing.
  *
  * Theme is inferred from the OS via `prefers-color-scheme` - a reasonable
  * default since users typically align their JupyterLab theme with the OS.
@@ -259,6 +333,18 @@ function preloadSplashLogo(url: string): void {
 // element) and fall back to the HTTP URL.
 try {
   applyEarlyThemeBackground();
+
+  // Browser tab title - the pre-restore paint only. JupyterLab's apputils
+  // state plugin rewrites document.title from PageConfig 'appName' on every
+  // state-DB change (a layout save fires one within seconds of boot), so
+  // this assignment does NOT survive on its own; the server sets 'appName'
+  // from the same traitlet via the page-config hook. Trimmed so a
+  // whitespace-only short_name cannot blank the tab label.
+  const shortName = PageConfig.getOption('brandingShortName');
+  if (shortName && shortName.trim()) {
+    document.title = shortName.trim();
+  }
+
   const splashDataUri = PageConfig.getOption('brandingSplashLogoDataUri');
   const splashUrl = PageConfig.getOption('brandingSplashLogoUrl');
   const effective = splashDataUri || splashUrl;
@@ -297,7 +383,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         });
       }
 
-      if (config.system_name) {
+      if (config.system_name || config.stage) {
         let settings: ISettingRegistry.ISettings | null = null;
         try {
           settings = await settingRegistry.load(plugin.id);
@@ -319,11 +405,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
             (settings?.get('colorMode').composite as string) ?? 'auto';
           const customColor =
             (settings?.get('customColor').composite as string) ?? '';
+          const stageColors =
+            (settings?.get('stageColors').composite as boolean) ?? true;
           const color =
             colorMode === 'custom'
               ? customColor || config.header_system_name_color
               : undefined;
-          applySystemName(spacer, config.system_name, color, capitalize);
+          applyHeader(spacer, config.system_name, config.stage, {
+            color,
+            capitalize,
+            stageColors
+          });
         };
 
         app.restored.then(render);

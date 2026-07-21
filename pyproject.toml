@@ -33,6 +33,12 @@ test = [
     "pytest-cov",
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Without this, a bare `pytest` resolves the INSTALLED wheel rather than the
+# working tree, so edits to handlers.py are silently not under test.
+pythonpath = ["."]
+
 [tool.hatch.version]
 source = "nodejs"
 
