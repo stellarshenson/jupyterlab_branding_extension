@@ -291,6 +291,12 @@ describe('applyStage', () => {
     expect(span!.textContent).toBe('PRD');
   });
 
+  it('should set the title to the full value for hover recovery when truncated', () => {
+    applyStage(spacer, 'PRODUCTION-EU-WEST-1', true);
+    const span = spacer.querySelector('span.jp-Branding-stage') as HTMLElement;
+    expect(span.title).toBe('PRODUCTION-EU-WEST-1');
+  });
+
   it('should add the per-stage colour class for known stages', () => {
     const cases: [string, string][] = [
       ['DEV', 'jp-Branding-stage-dev'],

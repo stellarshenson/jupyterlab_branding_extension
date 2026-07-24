@@ -206,6 +206,9 @@ export function applyStage(
   const span = document.createElement('span');
   span.className = STAGE_CLASS;
   span.textContent = value;
+  // A long free-form stage is capped by max-width and truncates to an
+  // ellipsis; the title keeps the full value recoverable on hover.
+  span.title = value;
 
   if (useColors) {
     const key = value.toUpperCase();

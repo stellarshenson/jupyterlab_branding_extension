@@ -46,6 +46,11 @@ jobs:
         jupyter labextension list 2>&1 | grep -ie "jupyterlab_branding_extension.*OK"
         python -m jupyterlab.browser_check
 
+    - name: Test the server extension
+      run: |
+        set -eux
+        python -m pytest -v
+
     - name: Package the extension
       run: |
         set -eux

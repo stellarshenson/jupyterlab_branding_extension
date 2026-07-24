@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- Stage badge exposes its full value through a `title` attribute, so a long free-form stage that truncates to an ellipsis stays readable on hover
+
+### Changed
+
+- Build Makefile replaced with the shared canonical version used across the JupyterLab extension family (1.31 → 1.35): a project-local Node environment under `.nodeenv/`, dependency self-healing, and a lazy package-version read
+- Server-side pytest suite now runs in CI (`.github/workflows/build.yml`) instead of the `make test` target; the canonical Makefile's `test` target is frontend-only, so the CI step is what guards `tests/test_handlers.py`
+- Deployment stage badge sized off JupyterLab's UI font scale (`--jp-ui-font-size0`) rather than a fixed pixel size, with tighter line-height and padding so its outline hugs the system-name text
+
 ## [1.0.35] - 2026-07-21
 
 ### Added

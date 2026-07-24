@@ -52,15 +52,20 @@
   /* inline-block, not inline-flex: text-overflow is inert on a flex
      container, so a long custom stage would hard-clip instead of ellipsising. */
   display: inline-block;
-  font-size: 12px;
+
+  /* One step below the system name on JupyterLab's own UI scale
+     (size1 = 13px), so the badge tracks the UI font and reads a touch
+     smaller than the name beside it. line-height and vertical padding are
+     kept tight so the outline hugs the text rather than towering over it. */
+  font-size: var(--jp-ui-font-size0);
   font-weight: 600;
   font-family: var(--jp-ui-font-family);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 1px 8px;
+  padding: 0 6px;
   border: 1px solid currentcolor;
-  border-radius: 4px;
-  line-height: 1.6;
+  border-radius: 3px;
+  line-height: 1.4;
   white-space: nowrap;
   margin-right: 12px;
   color: #607782;
