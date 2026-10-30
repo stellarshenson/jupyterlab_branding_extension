@@ -24,7 +24,7 @@ JupyterLab branding extension that replaces the default main area logo, the star
 
 ## Requirements
 
-- JupyterLab >= 4.0.0
+- JupyterLab >= 4.6.0
 - jupyter_server >= 2.0.0
 
 ## Install

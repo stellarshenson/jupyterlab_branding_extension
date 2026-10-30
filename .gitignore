@@ -132,3 +132,7 @@ junit.xml
 
 # project-local node environment created by `make install_dependencies`
 .nodeenv/
+
+# Run output
+logs/
+tmp/
