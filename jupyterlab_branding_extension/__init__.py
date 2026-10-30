@@ -16,7 +16,7 @@ from .handlers import setup_handlers
 def _jupyter_labextension_paths():
     return [{
         "src": "labextension",
-        "dest": "jupyterlab_branding_extension"
+        "dest": "@stellarshenson/jupyterlab-branding-extension"
     }]
 
 

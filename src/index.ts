@@ -362,16 +362,16 @@ try {
 }
 
 /**
- * Initialization data for the jupyterlab_branding_extension extension.
+ * Initialization data for the @stellarshenson/jupyterlab-branding-extension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab_branding_extension:plugin',
+  id: '@stellarshenson/jupyterlab-branding-extension:plugin',
   description: 'Replace JupyterLab main logo with custom image',
   autoStart: true,
   requires: [ISettingRegistry],
   activate: async (app: JupyterFrontEnd, settingRegistry: ISettingRegistry) => {
     console.log(
-      'JupyterLab extension jupyterlab_branding_extension is activated!'
+      'JupyterLab extension @stellarshenson/jupyterlab-branding-extension is activated!'
     );
     try {
       const config = await fetchLogoConfig();
