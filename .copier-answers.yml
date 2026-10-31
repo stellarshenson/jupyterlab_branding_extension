@@ -6,12 +6,12 @@ author_email: konrad.jelen@gmail.com
 author_name: Stellars Henson
 has_ai_rules: false
 has_binder: false
-has_settings: false
-kind: frontend
+has_settings: true
+kind: frontend-and-server
 labextension_name: '@stellarshenson/jupyterlab-branding-extension'
 project_short_description: Jupyterlab extension to use custom logo for the jupyterlab
     main logo
 python_name: jupyterlab_branding_extension
-repository: ''
+repository: https://github.com/stellarshenson/jupyterlab_branding_extension
 test: true
 

@@ -23,7 +23,7 @@ The following workspace rules are STRICTLY ENFORCED for this project:
 
 JupyterLab 4.x frontend extension that replaces the default JupyterLab main area logo with a custom logo. Built from the official `jupyterlab/extension-template` (Copier v4.5.1). TypeScript frontend-only extension with no server component.
 
-- **npm package**: `jupyterlab_branding_extension`
+- **npm package**: `@stellarshenson/jupyterlab-branding-extension`
 - **PyPI package**: `jupyterlab_branding_extension`
 - **Technology stack**: TypeScript, JupyterLab 4, Lumino widgets
 - **Build system**: hatchling (Python), jlpm/webpack (JS)

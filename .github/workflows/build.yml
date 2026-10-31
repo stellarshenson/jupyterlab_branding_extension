@@ -42,16 +42,18 @@ jobs:
         set -eux
         python -m pip install .[test]
 
+        pytest -vv -r ap --cov jupyterlab_branding_extension
         jupyter server extension list
         jupyter server extension list 2>&1 | grep -ie "jupyterlab_branding_extension.*OK"
+
         jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "@stellarshenson/jupyterlab-branding-extension.*OK"
         python -m jupyterlab.browser_check
 
-    - name: Test the server extension
+    - name: Check that all endpoints are authenticated
       run: |
         set -eux
-        python -m pytest -v
+        python .github/scripts/check_auth.py
 
     - name: Package the extension
       run: |
@@ -90,8 +92,10 @@ jobs:
 
         pip install "jupyterlab>=4.6,<5" jupyterlab_branding_extension*.whl
 
+
         jupyter server extension list
         jupyter server extension list 2>&1 | grep -ie "jupyterlab_branding_extension.*OK"
+
         jupyter labextension list
         jupyter labextension list 2>&1 | grep -ie "@stellarshenson/jupyterlab-branding-extension.*OK"
         python -m jupyterlab.browser_check --no-browser-test
@@ -168,4 +172,4 @@ jobs:
           python_version: '3.13'
       - uses: jupyterlab/maintainer-tools/.github/actions/check-links@v1
         with:
-          ignore_links: "https://www.npmjs.com/package/.* https://pepy.tech/.* https://static.pepy.tech/.*"
+          ignore_links: "https://www.youtube.com/.* https://www.npmjs.com/package/.* https://pepy.tech/.* https://static.pepy.tech/.*"
