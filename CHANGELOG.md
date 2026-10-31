@@ -73,6 +73,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.41] - 2026-10-31
+
+### Changed
+
+- Apply the template files and packages the upgrade left out
+
 ## [1.0.39] - 2026-10-31
 
 ### Changed
