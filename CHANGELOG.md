@@ -73,6 +73,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.42] - 2026-10-31
+
+### Changed
+
+- Require Python 3.12
+
 ## [1.0.41] - 2026-10-31
 
 ### Changed
