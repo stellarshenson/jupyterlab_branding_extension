@@ -73,4 +73,14 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.39] - 2026-10-31
+
+### Changed
+
+- Upgrade to extension template v4.6.5 and Makefile 1.46
+
+### Fixed
+
+- Take the scoped @stellarshenson/jupyterlab-branding-extension npm name
+
 <!-- <END NEW CHANGELOG ENTRY> -->
