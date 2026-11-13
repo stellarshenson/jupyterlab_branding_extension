@@ -34,12 +34,15 @@ class LogoFileHandler(JupyterHandler):
     Content-Type: application/json on the response.
     """
 
+    setting = "branding_file_path"
+    missing = "Logo file not found"
+
     @tornado.web.authenticated
     def get(self):
-        """Read and serve the logo file."""
-        file_path = self.settings.get("branding_file_path", "")
+        """Read and serve the file the setting names."""
+        file_path = self.settings.get(self.setting, "")
         if not file_path or not os.path.isfile(file_path):
-            raise tornado.web.HTTPError(404, "Logo file not found")
+            raise tornado.web.HTTPError(404, self.missing)
 
         content_type, _ = mimetypes.guess_type(file_path)
         if content_type is None:
@@ -50,23 +53,11 @@ class LogoFileHandler(JupyterHandler):
             self.finish(f.read())
 
 
-class SplashLogoFileHandler(JupyterHandler):
+class SplashLogoFileHandler(LogoFileHandler):
     """Handler that serves the splash logo file."""
 
-    @tornado.web.authenticated
-    def get(self):
-        """Read and serve the splash logo file."""
-        file_path = self.settings.get("branding_splash_file_path", "")
-        if not file_path or not os.path.isfile(file_path):
-            raise tornado.web.HTTPError(404, "Splash logo file not found")
-
-        content_type, _ = mimetypes.guess_type(file_path)
-        if content_type is None:
-            content_type = "application/octet-stream"
-
-        self.set_header("Content-Type", content_type)
-        with open(file_path, "rb") as f:
-            self.finish(f.read())
+    setting = "branding_splash_file_path"
+    missing = "Splash logo file not found"
 
 
 def _resolve_file_path(logo_uri):

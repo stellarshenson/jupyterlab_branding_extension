@@ -5,7 +5,10 @@ persists in the browser tab (JupyterLab rewrites document.title from it on
 every state-DB change), so a defect here outlives anything the frontend does.
 """
 
+import json
+
 import pytest
+from tornado.httpclient import HTTPClientError
 
 from jupyterlab_branding_extension.config import Branding
 from jupyterlab_branding_extension.handlers import setup_handlers
@@ -287,3 +290,35 @@ def test_bidi_overrides_are_still_removed_everywhere(spoof):
     web_app = setup(short_name=spoof)
 
     assert "‮" not in render_page_config(web_app)["appName"]
+
+
+SVG = b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>'
+
+
+@pytest.fixture
+def logo_file(tmp_path):
+    path = tmp_path / "logo.svg"
+    path.write_bytes(SVG)
+    return path
+
+
+@pytest.fixture
+def jp_server_config(jp_server_config, logo_file):
+    return {**jp_server_config, "Branding": {"logo_uri": str(logo_file)}}
+
+
+async def test_configured_logo_is_served_with_its_content_type(jp_fetch):
+    response = await jp_fetch("jupyterlab-branding", "config")
+    config = json.loads(response.body)
+    assert config["logo_url"].endswith("/jupyterlab-branding/logo")
+    assert config["splash_logo_url"] == ""
+
+    response = await jp_fetch("jupyterlab-branding", "logo")
+    assert response.headers["Content-Type"] == "image/svg+xml"
+    assert response.body == SVG
+
+
+async def test_unconfigured_splash_logo_is_not_found(jp_fetch):
+    with pytest.raises(HTTPClientError) as error:
+        await jp_fetch("jupyterlab-branding", "splash-logo")
+    assert error.value.code == 404
