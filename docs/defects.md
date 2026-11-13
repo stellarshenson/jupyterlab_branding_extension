@@ -34,6 +34,20 @@ Tornado handlers and the server-side configuration
   - log: 2026-11-13T06:59:27Z @kj added
   - log: 2026-11-13T06:59:33Z @kj edited test-tags added "UNIT"
   - log: 2026-11-13T07:02:34Z @kj rejected: one small file per server start in a folder the system clears; removal at exit adds code for no user-visible gain
+- [x] `DEF-SERVER-6-MISSING-LOGO` **Missing logo file removes the system name and stage badge** - MAJOR; A logo_uri path that names no file was published as logo_url; the frontend fetch answered 404, aborted, and the system name and stage badge were never rendered
+  - evidence: tests/test_handlers.py::test_missing_logo_file_still_publishes_name_and_stage passes; pytest 61 passed
+  - repro: set c.Branding.logo_uri to a path with no file plus system_name and stage, start the lab: no name, no badge
+  - test-tags: UNIT
+  - root-cause: 2026-11-13T07:26:07Z @kj _resolve_logo_source returned any local path without checking that the file exists, while the remote branch already returned empty on a failed fetch
+  - log: 2026-11-13T07:26:07Z @kj added
+  - log: 2026-11-13T07:26:13Z @kj closed
+- [x] `DEF-SERVER-7-SVG-SUFFIX` **Remote SVG with a generic Content-Type is served as text** - MINOR; _fetch_remote_logo took the temp file suffix from any Content-Type; text/plain gave .txt and octet-stream gave .bin, so the .svg fallback never ran and the logo was served with a non-image type
+  - evidence: tests/test_handlers.py::test_remote_svg_with_a_generic_content_type_keeps_its_suffix passes; pytest 61 passed
+  - repro: logo_uri https://host/logo.svg answered with Content-Type text/plain: the cached file ends .txt
+  - test-tags: UNIT
+  - root-cause: 2026-11-13T07:26:07Z @kj mimetypes.guess_extension returns .txt and .bin for the generic types, so the 'if not ext' fallback to the URL suffix was unreachable
+  - log: 2026-11-13T07:26:07Z @kj added
+  - log: 2026-11-13T07:26:13Z @kj closed
 
 ## Frontend `FRONT`
 

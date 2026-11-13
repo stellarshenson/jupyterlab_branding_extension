@@ -87,10 +87,13 @@ def _fetch_remote_logo(url):
             data = resp.read()
             content_type = resp.headers.get("Content-Type", "")
 
-        # Determine file extension from content type
-        ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
-        if not ext and url.endswith(".svg"):
-            ext = ".svg"
+        # A generic type (text/plain, octet-stream) says nothing about an
+        # image, so the suffix then comes from the URL path.
+        mime = content_type.split(";")[0].strip()
+        if mime.startswith("image/"):
+            ext = mimetypes.guess_extension(mime) or ""
+        else:
+            ext = os.path.splitext(urlparse(url).path)[1]
 
         fd, path = tempfile.mkstemp(prefix="jlab-branding-", suffix=ext)
         with os.fdopen(fd, "wb") as f:
@@ -114,6 +117,9 @@ def _resolve_logo_source(logo_uri):
 
     file_path = _resolve_file_path(logo_uri)
     if file_path:
+        if not os.path.isfile(file_path):
+            log.warning("Logo file %s does not exist; no logo is served", file_path)
+            return ""
         return file_path
 
     parsed = urlparse(logo_uri)

@@ -6,6 +6,7 @@ every state-DB change), so a defect here outlives anything the frontend does.
 """
 
 import json
+import os
 
 import pytest
 from tornado.httpclient import HTTPClientError
@@ -322,3 +323,45 @@ async def test_unconfigured_splash_logo_is_not_found(jp_fetch):
     with pytest.raises(HTTPClientError) as error:
         await jp_fetch("jupyterlab-branding", "splash-logo")
     assert error.value.code == 404
+
+
+def test_missing_logo_file_still_publishes_name_and_stage(tmp_path):
+    """A logo path that names no file must not be advertised as a URL.
+
+    Regression: the path was published as logo_url, the frontend fetch
+    answered 404, and the system name and stage badge were never rendered.
+    """
+    web_app = setup(
+        logo_uri=str(tmp_path / "missing.svg"), system_name="production", stage="PRD"
+    )
+
+    branding_config = web_app.settings["branding_config"]
+    assert branding_config["logo_url"] == ""
+    assert web_app.settings["branding_file_path"] == ""
+    assert branding_config["system_name"] == "production"
+    assert branding_config["stage"] == "PRD"
+
+
+def test_remote_svg_with_a_generic_content_type_keeps_its_suffix(monkeypatch):
+    """The suffix decides the served Content-Type, so text/plain must not win."""
+    from jupyterlab_branding_extension import handlers
+
+    class Response:
+        headers = {"Content-Type": "text/plain; charset=utf-8"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return SVG
+
+    monkeypatch.setattr(handlers, "urlopen", lambda url, timeout: Response())
+
+    path = handlers._fetch_remote_logo("https://example.org/logo.svg?v=2")
+    try:
+        assert path.endswith(".svg")
+    finally:
+        os.remove(path)
