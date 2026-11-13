@@ -43,11 +43,12 @@ Tornado handlers and the server-side configuration
   - log: 2026-11-13T07:26:13Z @kj closed
 - [x] `DEF-SERVER-7-SVG-SUFFIX` **Remote SVG with a generic Content-Type is served as text** - MINOR; _fetch_remote_logo took the temp file suffix from any Content-Type; text/plain gave .txt and octet-stream gave .bin, so the .svg fallback never ran and the logo was served with a non-image type
   - evidence: tests/test_handlers.py::test_remote_svg_with_a_generic_content_type_keeps_its_suffix passes; pytest 61 passed
-  - repro: logo_uri https://host/logo.svg answered with Content-Type text/plain: the cached file ends .txt
+  - repro: an https logo_uri ending /logo.svg answered with Content-Type text/plain: the cached file ends .txt
   - test-tags: UNIT
   - root-cause: 2026-11-13T07:26:07Z @kj mimetypes.guess_extension returns .txt and .bin for the generic types, so the 'if not ext' fallback to the URL suffix was unreachable
   - log: 2026-11-13T07:26:07Z @kj added
   - log: 2026-11-13T07:26:13Z @kj closed
+  - log: 2026-11-13T07:32:52Z @kj edited repro "logo_uri https://host/logo.svg answered with Content-Type text/plain: the cached file ends .txt" -> "an https logo_uri ending /logo.svg answered with Content-Type text/plain: the cached file ends .txt"
 
 ## Frontend `FRONT`
 
