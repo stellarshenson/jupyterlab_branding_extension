@@ -73,6 +73,20 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.46] - 2026-11-13
+
+### Changed
+
+- Prove the logo source forms and the live settings update
+- Ignore the placeholder host of a defect log line in the link check
+- Remove the example URL the link check requests from the defect repro
+- Ignore the PayPal donate link in the link check
+- Cover the logo endpoints and serve both logos with one handler
+
+### Fixed
+
+- Serve no logo for a missing file and keep the suffix of a remote SVG
+
 ## [1.0.42] - 2026-10-31
 
 ### Changed
