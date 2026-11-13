@@ -342,26 +342,61 @@ def test_missing_logo_file_still_publishes_name_and_stage(tmp_path):
     assert branding_config["stage"] == "PRD"
 
 
+class RemoteResponse:
+    """Stands in for the urlopen response of a remote logo."""
+
+    headers = {"Content-Type": "text/plain; charset=utf-8"}
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def read(self):
+        return SVG
+
+
 def test_remote_svg_with_a_generic_content_type_keeps_its_suffix(monkeypatch):
     """The suffix decides the served Content-Type, so text/plain must not win."""
     from jupyterlab_branding_extension import handlers
 
-    class Response:
-        headers = {"Content-Type": "text/plain; charset=utf-8"}
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *args):
-            return False
-
-        def read(self):
-            return SVG
-
-    monkeypatch.setattr(handlers, "urlopen", lambda url, timeout: Response())
+    monkeypatch.setattr(handlers, "urlopen", lambda url, timeout: RemoteResponse())
 
     path = handlers._fetch_remote_logo("https://example.org/logo.svg?v=2")
     try:
         assert path.endswith(".svg")
+    finally:
+        os.remove(path)
+
+
+def test_file_uri_logo_resolves_to_the_served_file(logo_file):
+    web_app = setup(logo_uri=logo_file.as_uri())
+
+    assert web_app.settings["branding_file_path"] == str(logo_file)
+    assert web_app.settings["branding_config"]["logo_url"] == "/jupyterlab-branding/logo"
+
+
+def test_https_logo_is_fetched_once_at_server_start(monkeypatch):
+    from jupyterlab_branding_extension import handlers
+
+    fetched = []
+
+    def urlopen(url, timeout):
+        fetched.append(url)
+        return RemoteResponse()
+
+    monkeypatch.setattr(handlers, "urlopen", urlopen)
+
+    web_app = setup(splash_logo_uri="https://example.org/logo.svg")
+    path = web_app.settings["branding_splash_file_path"]
+    try:
+        assert fetched == ["https://example.org/logo.svg"]
+        with open(path, "rb") as f:
+            assert f.read() == SVG
+        assert (
+            web_app.settings["branding_config"]["splash_logo_url"]
+            == "/jupyterlab-branding/splash-logo"
+        )
     finally:
         os.remove(path)

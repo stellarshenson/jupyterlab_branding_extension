@@ -24,11 +24,13 @@ Main area logo and startup splash logo
   - test-tags: UNIT
   - log: 2026-11-13T06:59:26Z @kj added
   - log: 2026-11-13T07:02:16Z @kj closed
-- [ ] `ACC-LOGO-3-SOURCES` **Logo source forms** - MEDIUM; logo_uri and splash_logo_uri accept a local path, a file:// URI and an https:// URL; a remote logo is fetched once at server start
+- [x] `ACC-LOGO-3-SOURCES` **Logo source forms** - MEDIUM; logo_uri and splash_logo_uri accept a local path, a file:// URI and an https:// URL; a remote logo is fetched once at server start
+  - evidence: pytest test_configured_logo_is_served_with_its_content_type (local path), test_file_uri_logo_resolves_to_the_served_file, test_https_logo_is_fetched_once_at_server_start; 63 pytest passed
   - test: pytest: local path served; file:// and https:// resolve to a served file
   - test-tags: UNIT
   - log: 2026-11-13T06:59:26Z @kj added
   - log: 2026-11-13T07:02:16Z @kj local path proven by test_configured_logo_is_served_with_its_content_type; file:// and https:// have no test
+  - log: 2026-11-13T09:17:37Z @kj closed
 - [x] `ACC-LOGO-4-SERVE` **Authenticated logo endpoints** - HIGH; /jupyterlab-branding/config, /logo and /splash-logo need authentication; /logo answers with the file's content type; an unconfigured logo answers 404
   - evidence: pytest test_configured_logo_is_served_with_its_content_type, test_unconfigured_splash_logo_is_not_found; check_auth.py passes
   - test: pytest tests/test_handlers.py -k logo; python .github/scripts/check_auth.py
@@ -66,8 +68,10 @@ System name, stage badge, tab title and their settings
   - test-tags: UNIT
   - log: 2026-11-13T06:59:27Z @kj added
   - log: 2026-11-13T07:02:16Z @kj closed
-- [ ] `ACC-HEADER-9-SETTINGS` **Per-user appearance settings** - MEDIUM; capitalize, colorMode, customColor and stageColors from the Settings Editor change the header without a reload; customColor blank in custom mode uses header_system_name_color
+- [x] `ACC-HEADER-9-SETTINGS` **Per-user appearance settings** - MEDIUM; capitalize, colorMode, customColor and stageColors from the Settings Editor change the header without a reload; customColor blank in custom mode uses header_system_name_color
+  - evidence: jest src/**tests**/activate.spec.ts 'should re-render the header when a setting changes' drives the settings changed signal of the activated plugin; 52 jest tests passed
   - test: jlpm test -t applyHeader; manual: change a setting, header updates live
   - test-tags: UNIT, MANUAL
   - log: 2026-11-13T06:59:27Z @kj added
   - log: 2026-11-13T07:02:16Z @kj applyHeader options proven by jest; the live update on a settings change has no test
+  - log: 2026-11-13T09:17:37Z @kj closed
